@@ -1,0 +1,30 @@
+### ===
+self.definitions => (self.store => self.renamed): unsat
+self.definitions => (self.renamed => self.store): unsat
+#REQ= 10
+size= 10 time= 6
+Total number of rules 36
+number of stored 10
+number of unsafes 0
+ REQ= [P_1(X), P_2(X), P_3(X), P_5(X), P_6(X), P_8(X), P_11(X), P_13(X), P_14(X), P_16(X)]
+ #problems= 4
+ #check= 636
+
+all problems are in Not(R) !
+
+#### === 
+self.definitions => (self.store => self.renamed): unsat
+self.definitions => (self.renamed => self.store): unsat
+#REQ= 19
+size= 20 time= 597
+Total number of rules 36
+number of stored 20
+number of unsafes 0
+ REQ= [P_1(X), P_2(X), P_3(X), P_5(X), P_6(X), P_8(X), P_11(X), P_13(X), P_14(X), P_16(X), P_20(X), P_25(X), P_26(X), P_27(X), P_28(X), P_30(X), P_32(X), P_33(X), P_34(X)]
+ #problems= 4
+ #check= 65730
+
+check_problems unknown ! 
+### this can be changed increasing the timer 
+
+ 

@@ -1,0 +1,51 @@
+
+#### ----------10
+self.definitions => (self.store => self.renamed): unsat
+self.definitions => (self.renamed => self.store): unsat
+#REQ= 7
+size= 10 time 1 #PB= 34
+ #real problems 34
+Total number of rules 61
+number of stored 10
+number of unsafes 0
+ REQ= [P_1(T, X), P_3(T, X), P_4(T, X), P_5(T, X), P_6(T, X), P_7(T, X), P_10(T, X)]
+ #problems= 3
+ #check= 190
+
+all problems are in Not(R) !
+
+### ---------- 20
+self.definitions => (self.store => self.renamed): unsat
+self.definitions => (self.renamed => self.store): unsat
+#REQ= 13
+size= 20 time 66 #PB= 26
+ #real problems 26
+Total number of rules 61
+number of stored 20
+number of unsafes 0
+ REQ= [P_1(T, X), P_3(T, X), P_4(T, X), P_5(T, X), P_6(T, X), P_7(T, X), P_10(T, X), P_11(T, R), P_13(T, R), P_14(T, R), P_16(T, R), P_18(T, R), P_20(T, R)]
+ #problems= 26
+ #check= 6730
+
+all problems are in Not(R) !
+
+### ------------- 30
+self.definitions => (self.store => self.renamed): unsat
+self.definitions => (self.renamed => self.store): unsat
+#REQ= 17
+size= 30 time 1563 #PB= 26
+ #real problems 26
+Total number of rules 61
+number of stored 30
+number of unsafes 0
+ REQ= [P_1(T, X), P_3(T, X), P_4(T, X), P_5(T, X), P_6(T, X), P_7(T, X), P_10(T, X), P_11(T, R), P_13(T, R), P_14(T, R), P_16(T, R), P_18(T, R), P_20(T, R), P_21(T, R), P_23(T, R), P_25(T, R), P_27(T, R)]
+ #problems= 26
+ #check= 106578
+
+check_problems unknown ! 
+
+### ------------- 40
+#REQ= 21   unknown
+
+### ------------- 50
+one night ???
