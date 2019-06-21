@@ -1,0 +1,40 @@
+%%%% 20/6/2019
+
+
+%%%% Examples and source code prototype for the extracting a summary of
+all the problems in a rule-based system
+
+========== Requirements
+
+    Python v.3.7
+    Z3 v.4.6
+    Z3py
+
+========== How to use
+
+SEE examples/enumerate/testAdi2009.py
+
+use compute_table(size) to get the enumerative results
+then choose some problems and the binary chracteristic
+
+SEE examples/enumerate/testAdi2009.py
+
+
+========== Repository structure
+
+RESOURCES/
+
+
+examples/enumerate contains some examples and results for enumerate
+examples/combine contains some examples and results for combine
+
+src/ contains the same base code than ACP (https://github.com/atlanmod/ACP) 
+    enumerative/ for the enumerative algorithm
+    normalized/ for the combine algorithm
+
+========== Contacts
+
+    Jean-Claude Royer: jean-claude.royer@imt-atlantique.fr
+
+    Massimo Tisi: massimo.tisi@imt-atlantique.fr
+
