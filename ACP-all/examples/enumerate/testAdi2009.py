@@ -1,5 +1,5 @@
 # -------------------
-# 20/6/2019
+# 21/6/2019
 # Test Adi2009 
 # -------------------
 
@@ -45,8 +45,10 @@ size = 5
 REQ = [nurse(h), doctor(h), sameward(h, p), chief(h)]
 
 table.compute_table(size, REQ) # compute the problems
+print ("--------- Show results")
 print (str(table))
 print (table.get_info())
+print ("--------- Check undefinedness (=> Not(R))")
 table.check_problems()
 
 #### get these two problems
@@ -55,7 +57,7 @@ table.check_problems()
 # And(nurse(h), Not(doctor(h)), Not(sameward(h, p)), chief(h))
 # ---
 
-#### =================== 3 problems undefined OK
+#### =================== 3  undefined examples
 # print(str(table.check_undefined(Exists(table.variables, And(doctor(h), chief(h), nurse(h), Not(sameward(h, p)))), size)))
 # print(str(table.check_undefined(Exists(table.variables, And(Not(doctor(h)), chief(h), nurse(h), Not(sameward(h, p)))), size)))
 # print(str(table.check_undefined(Exists(table.variables, And(doctor(h), Not(chief(h)), nurse(h), Not(sameward(h, p)))), size)))

@@ -130,5 +130,5 @@ print (str(table.get_info()))
 table.show_problems()
 #table.check_problems(size)
 
-#table.compare_problems(size, REQ)
+table.compare_problems(size, REQ)
 

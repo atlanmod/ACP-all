@@ -68,7 +68,8 @@ class SimplifySet(RuleSet):
     # -----------------------------
     # first classification: eliminate tautology
     def classify_rules(self, rules):
-        self.solver.reset()            
+        self.solver.reset()          
+        self.store = []  
         for rule in  rules:
             cond = rule.get_cond()
             conc = rule.get_conc()
@@ -77,9 +78,6 @@ class SimplifySet(RuleSet):
             #print ("SimplifySet.classify " + str(rule)) # + " tauto? " + str(self.is_tautology(csys, cond, conc)))
             indic = self.compute_indicator(csys, cond, conc)
             if (indic != Indicator.TAUTOLOGY): 
-#                 if (indic == Indicator.UNSAFE): 
-#                     self.unsafe.append(rule)
-#                 else: 
                 self.store.append(rule)
             else:
                 print(" classify_rules " + str(rule) + " is redundant! ")

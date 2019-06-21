@@ -51,7 +51,9 @@ table.compute_table(REQ, size)
   
 print (str(table))
 print (str(table.get_info()))
+print ("--------- Show problems")
 table.show_problems()
+print ("--------- Check undefinedness (=> Not(R))")
 table.check_problems(size)
-
+print ("--------- Compare both results ")
 table.compare_problems(size, REQ)

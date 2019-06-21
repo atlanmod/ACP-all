@@ -119,7 +119,7 @@ table.add_rule(And(month(X, october), month(X, november)), False)
 
 ### -------- analysis 
 start = process_time()
-size = 10 + 21 + 18 
+size = 18 + 21 + 18 
 #size =  18 + 21 + 18 # = 57
 REQ = [(9 <= time(X)), (time(X) < 17), (0 <= time(X)), (time(X) < 9), (17 <= time(X)), (time(X) < 24),
     monday(X), tuesday(X), wednesday(X), thursday(X), friday(X), saturday(X), sunday(X),
@@ -139,5 +139,6 @@ table.show_problems()
 
 ### many explicit unsafe not too much a problem since
 ### eliminated by the initial_problems
+### and time is really smaller
 
 #table.compare_problems(size, REQ)

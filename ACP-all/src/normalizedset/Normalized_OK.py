@@ -1,5 +1,5 @@
 # ------------------
-# 12/6/2019
+# 21/6/2019
 # Look for problems in undefined 
 # Check is already a problem and if already seen
 # Finally check if it is a problem add it 
@@ -99,14 +99,13 @@ class Normalized_enumerate(NormalizedSet):
         #print ("en clair " + str(self.reverse_list_binary(self.binary)))
         # check for if binary/REQ is a problem and store it 
         # and remove the corresponding undefined   
-        self.initial_problems(NBREQ)          
+        self.initial_problems()          
         # compute all remaining reductions
         allreq = []
         for binary in self.binary:
             red = self.req_fun(binary)
-            #if ((red not in allreq)  and (sum(red) > -NBREQ)):
-            if (red not in allreq):
-                print(str(red))
+            if ((red not in allreq)  and (sum(red) > -NBREQ)):
+                #print(str(red))
                 allreq.append(red)
         print ("allreq= " + str(len(allreq))) # + " / " + str(allreq))
         # compute all combinations of reduction to :REQ
@@ -174,23 +173,17 @@ class Normalized_enumerate(NormalizedSet):
 
     # ------------------------
     # Compute initial problems and clean self.binary
-    # TODO remove [-1*]
-    def initial_problems(self, NBREQ):
+    def initial_problems(self):
         I = 0
         while (I < len(self.binary)):
             binreq = self.req_fun(self.binary[I])
-            print ("binreq " + str(binreq))
-            ### clean [-1*]:REQ ?
-            if (sum(binreq) > -NBREQ):
-                renamed = self.reverse_binary_req_renamed(binreq)
-                if (self.check_undefined_request(renamed)):
-                    #print(" is a problem " + str(binary) + str(renamed))
-                    self.normalized_problems.append(binreq)
-                    del self.binary[I]
-                else:
-                    I += 1
-            else:
+            renamed = self.reverse_binary_req_renamed(binreq)
+            if (self.check_undefined_request(renamed)):
+                #print(" is a problem " + str(binary) + str(renamed))
+                self.normalized_problems.append(binreq)
                 del self.binary[I]
+            else:
+                I += 1
         # simplification
         prime(self.normalized_problems)
         prime(self.binary) 
@@ -225,7 +218,6 @@ class Normalized_enumerate(NormalizedSet):
     # return a Z3BoolRef
     # self.REQ contains the definitions keys
     def reverse_binary_req_renamed(self, binary):
-        #print ("binary " + str(binary))
         nbreq = len(self.REQ)
         z3term = []
         for i in range(nbreq):
@@ -240,6 +232,20 @@ class Normalized_enumerate(NormalizedSet):
             return And(*z3term)
     # --- reverse_binary_req   
     
+#     # TODO define a basic one with reset + R + etc 
+#     def check_undefined_request(self, renamed):
+#         self.solver.reset()
+#         print ("size= ? " + str(len(self.stored)))
+#         self.solver.add(ForAll(self.variables, self.toBoolRef(self.rules, size)))
+#         Exists(self.variables, self.rewrite())
+#         pb = self.reverse_binary_req(renamed)
+#         self.solver.add(Exists(self.variables, pb))
+#         res = self.solver.check()
+#         # There are unknown
+#         if (res == unknown):
+#             print ("unknwon for " + str(pb))
+#         return (res == unsat)
+    # ---
     # -------------------- TODO move to renaming
     # Check if !*store & ~?request is unsat
     # renamed is a renamed z3 term
@@ -318,17 +324,20 @@ class Normalized_enumerate(NormalizedSet):
     # Enumerate and Normalized_OK
     # self.problems <=> self.normalized_problems
     # size of rule system and predicates for REQ
+    ### TODO pb side-effects ?
     def compare_problems(self, size, lreq):
         # TODO from enumerate (transfert to enumerate)
+        print ("------------ compute with enumerate algorithm")
         aux = Enumerate()
         #for X in self.variables:
         aux.rules = self.rules
         aux.variables = self.variables
         aux.compute_table(size, lreq)
-        print ("problems " + str([aux.rewrite(X) for X in aux.problems]))
+        #print ("problems " + str([aux.rewrite(X) for X in aux.problems]))
         pb = Exists(aux.variables, Or(*[aux.rewrite(X) for X in aux.problems]))
         #print ("pb= " + str(pb))
-        # from OK TODO ????
+        # from OK
+        print ("------------ compute with combine algorithm")
         self.compute_table(lreq, size) # order
         # frontier problems
         pb_OK = Exists(self.variables,  Or(*[self.reverse_binary_req(X) for X in self.normalized_problems]))
