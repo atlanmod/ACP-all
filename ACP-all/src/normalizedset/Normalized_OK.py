@@ -327,6 +327,7 @@ class Normalized_enumerate(NormalizedSet):
     ### TODO pb side-effects ?
     def compare_problems(self, size, lreq):
         # TODO from enumerate (transfert to enumerate)
+        self.start = process_time()
         print ("------------ compute with enumerate algorithm")
         aux = Enumerate()
         #for X in self.variables:
@@ -337,11 +338,13 @@ class Normalized_enumerate(NormalizedSet):
         pb = Exists(aux.variables, Or(*[aux.rewrite(X) for X in aux.problems]))
         #print ("pb= " + str(pb))
         # from OK
+        print ("enumerate: found= " + str(len(aux.problems)) + " in " + str(floor(process_time()-self.start)))
         print ("------------ compute with combine algorithm")
         self.compute_table(lreq, size) # order
         # frontier problems
         pb_OK = Exists(self.variables,  Or(*[self.reverse_binary_req(X) for X in self.normalized_problems]))
         #print ("pb_OK " + str(pb_OK))
+        print ("combine: found= " + str(len(self.normalized_problems)) + " in " + str(floor(process_time()-self.start)))
         # one way
         self.solver.reset()  
         self.solver.add(pb)
