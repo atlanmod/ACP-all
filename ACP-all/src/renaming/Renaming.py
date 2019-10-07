@@ -1,11 +1,7 @@
 # ------------------
-# 13/6/2019
+# 24/9/2019
 # parse collect definitions and rewrite the rules
-# unsafe rules are forgotten
 # -------------------
-
-### TODO attention solver_renamed change donc revoir avec enumerate_combine ...
-### no renamed_unsafe
 
 from z3.z3util import * #@UnusedWildImport
 from SimplifySet import * #@UnusedWildImport
@@ -30,20 +26,10 @@ class Renaming(SimplifySet):
         self.counter = 0
         # new rules after renaming
         self.renamed = []
-        # self.renamed_unsafe = []
         # second local solver for renamed rules
         self.solver_renamed = Solver()
-        #self.solver_renamed = SolverFor('LIA') # 
-        #self.solver_renamed = SolverFor('AUFLIA') # 
-        #self.solver_renamed = SolverFor('QF_NIA') # 
-        #self.solver_renamed = SolverFor('QF_UFLIA') # 
-        #self.solver_renamed = SolverFor('QF_UF') # 
-        # (default: 4294967295)
-        #self.solver_renamed.set(timeout =  4294967295) 
-        #self.solver_renamed.set(timeout = 1000000000) 
-        #self.solver_renamed.set(timeout = 1000) 
-        #self.solver_renamed.set(timeout= 0) ### no timeout 
-        #timeout (unsigned int) timeout (in milliseconds) (UINT_MAX and 0 mean no timeout) (default: 4294967295)
+        # aux to count check 
+        self.checking = 0             
     # --- end init
         
     # --------------------
@@ -95,9 +81,6 @@ class Renaming(SimplifySet):
         #parse store rules 
         for rule in self.store:
             self.renamed.append(Rule(self.parse(rule.get_cond()), self.parse(rule.get_conc())))
-#         #parse unsafe rules 
-#         for rule in self.unsafe:
-#             self.renamed_unsafe.append(Rule(self.parse(rule.get_cond()), self.parse(rule.get_conc())))            
         # load definitions in Solver
         self.add_definitions_in_solver()
         # self.solver contains the definitions and the renamed rules
@@ -115,14 +98,7 @@ class Renaming(SimplifySet):
             if (not is_const(defi)):
                 self.solver_renamed.add(built_quantified(de == defi, self.variables, True))
     # --- add_definitions_in_solver 
-    
-    # ------------------- TODO not used
-    # add the unsafes in the solver_renamed
-    def add_unsafes_in_solver(self):
-        for rule in self.renamed_unsafe:
-            self.solver_renamed.add(built_quantified(rule.toBoolRef(), self.variables, True)) 
-    # --- add_unsafes_in_solver 
-               
+
     # ---------------
     # simple parsing for conditions and conclusions
     # only the top-level
@@ -182,7 +158,7 @@ class Renaming(SimplifySet):
             elif (op == Z3_OP_NOT):
                 return Not(self.rewrite(exp.children()[0]))             
         else:
-            print ("rewrite louche " + str(exp))
+            print ("wrong expression to rewrite " + str(exp))
     # --- rewrite 
 
     # --------------------
@@ -210,62 +186,76 @@ class Renaming(SimplifySet):
         print("self.definitions => (self.renamed => self.store): " + str(local.check()))
         local.pop()
     # ----check_renamed
-
-    # ---------------
-    # Compute indicator in solver_renamed
-    # D, C are Z3 renamed expressions
-    # Auxiliary only for classify_and_store
-    # without FACT checking
-    # TODO is it correct with def ?
-    # compute indicator of a renamed rule !* (D => C) 
-    # in the context of definitions
-    # TODO ????
-    # obvious: !*rules  & ?*D unsat
-    # tautology/redundancy: !*rules &  ?* (D & ~C) unsat
-    # unsafe: !*rules    !*(D=>C) ?*D unsat
-    def renamed_indicator(self, D, C):
-        #print ("renamed_indicator " + str(self.solver)) # + " \n csys " + str(csys))
-        res = Indicator.NONE
-        #print("1 " + str(self.solver_renamed))
+    
+    # -------------------- 
+    # Check if !*store & ~?request is unsat
+    # renamed is a renamed z3 term
+    # solver_renamed contains definitions and renamed rules
+    # return True if undefined
+    def check_undefined_request(self, renamed):
+        #print ("check_undefined_request " + str(renamed))
+        self.checking += 1 # to see  
         self.solver_renamed.push()
-        # checking obvious
-        if (self.variables):
-            self.solver_renamed.add(Exists(self.variables, D))
-        else:
-            self.solver_renamed.add(D)
-        check = (self.solver_renamed.check() == unsat)
+        # prop as variables 
+        self.solver_renamed.add(built_quantified(renamed, self.variables, False))
+        #print(str(self.solver_renamed))
+        # unknown are considered sat
+        res = self.solver_renamed.check()
+        #print("undefined request " + str(renamed) + " ? " + str(res))        
         self.solver_renamed.pop()
-        if (check):
-            res = Indicator.OBVIOUS
-        else: 
-            # checking tautology
-            #print ("2 " + str(self.solver))
-            self.solver_renamed.push()
-            if (self.variables):
-                self.solver_renamed.add(Exists(self.variables, And(D, Not(C))))
-            else:
-                self.solver_renamed.add(D)
-                self.solver_renamed.add(Not(C))
-            check = (self.solver_renamed.check() == unsat)
-            #print ("RuleSet compute indic " + str(self.solver.check()))
-            self.solver_renamed.pop()
-            if (check):
-                res = Indicator.TAUTOLOGY
-            else: 
-                # checking unsafe
-                #print ("3 " + str(self.solver))
-                self.solver_renamed.push()
-                if (self.variables):
-                    self.solver_renamed.add(ForAll(self.variables, Implies(D, C)))
-                    self.solver_renamed.add(Exists(self.variables, D))
-                else:
-                    self.solver_renamed.add(D)
-                    self.solver_renamed.add(C)
-                check = (self.solver_renamed.check() == unsat)
-                self.solver_renamed.pop()
-                if (check):
-                    res = Indicator.UNSAFE 
-        return res
-    # --- renamed_indicator 
-       
+        if (res == unknown):
+            self.unknown += 1
+            print ("check undefined request unknown: " + str(renamed))     
+        return res == unsat
+    # ----check_undefined_request    
+    
+    # -------------------
+    # check unsat of original request
+    # use a local solver and return True/False
+    def check_unsat_request(self, renamed):
+        self.local_solver.reset()
+        self.local_solver.add(built_quantified(self.rewrite(renamed), self.variables, False))
+        res = self.local_solver.check()
+        if (res == unknown):
+            print ("check unsat request unknown: " + str(self.rewrite(renamed)))        
+        return res == unsat        
+    # --- check_unsat_request
+    
+#     #### 23/9/2019 ================= add for personal tactic
+#     # =============
+#     # compute the NNF of the negation of the simplified rule systems
+#     # split the disjunction to get a sum of products terms
+#     # they are represented as List[Z3Exp]
+#     # return a List(Or) of ... TODO
+#     # TODO may be better after renamed
+#     def nnfnot(self):
+#         # renamed contains a list of Implies
+#         traces = {} # dico[Int x List[List[Int]]]
+#         res = []
+#         counter = 0
+#         for I in range(len(self.renamed)):
+#             rule = self.renamed[I]
+#             print (" rule " + str(rule))
+#             trans = NNF(And(rule.get_cond(), Not(rule.get_conc())))
+#             print ("nnf= " + str(trans))
+#             ### reduction to conjunctions 
+#             pieces = Repeat(OrElse(SPLIT, SKIP))(trans[0])
+#             #print (str(pieces))
+#             ### these are Goal/And becomes list() 
+#             alls = [list(X) for X in pieces]
+#             # TODO Binary conversion
+#             for andlist in alls:
+#                 res.append(self.convert_binary(andlist))
+#             # need to count the expressions
+#             for J in range(len(alls)):
+#                 print ("conversion= " + str(res[counter]))
+#                 traces[counter] = [[I]]
+#                 counter += 1
+#         # ---
+#         print ("#binaries= " + str(len(res)))
+#         ### TODO process some simplifications ?
+#         ### check two-way inclusion but is it useful ?
+#         #return res, traces
+#     # --- nnfnot
+           
 # --- end Renaming

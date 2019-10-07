@@ -1,5 +1,5 @@
 # -------------------
-# 21/6/2019
+# 7/10/2019
 # RBAC1 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### Try to encode all relations even unecessary hierarchy
@@ -7,6 +7,7 @@
 # split the specification into students and employees
 # remove redundancies
 # -----------------
+### ATTENTION version with or without explicit unsafe
 
 from employees import * #@UnusedWildImport
 from students import * #@UnusedWildImport
@@ -48,17 +49,14 @@ table.add_rule(And(Dean(T, X), Grad(T, Y), revoke(T, X, Y)), Not(Grad(succ(T), Y
 
 #======================================analysis
 #### analysis ----------------
-start = process_time()
 # RBAC1: 9 administrative + 9 revoke + 25 + 70 (113 rules)
-# size =  113
+size =  113
 # with explicit unsafe 
-size = 113 + 45 + 21 # (179 rules)
+#size = 113 + 45 + 21 # (179 rules)
 
 table.compute_table(REQ, size)
-print ("size = " + str(size) + " time = " + str(floor(process_time()-start)))
-#print (str(table))
-print (str(table.get_info()))
-table.show_problems()
-#table.check_problems(size)
-
-#table.compare_problems(size, REQ)
+# print ("size = " + str(size) + " time = " + str(floor(process_time()-start)))
+# #print (str(table))
+# print (str(table.get_info()))
+# table.show_problems()
+# #table.check_problems(size)

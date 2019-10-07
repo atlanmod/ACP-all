@@ -1,9 +1,11 @@
 # -------------------
-# 21/6/2019
+# 7/10/2019
 # CONTINUE A from test.tspass
 # -------------------
 
-from Normalized_OK import * #@UnusedWildImport
+from Normalized_OK_V2 import * #@UnusedWildImport
+#from Enumerate import * #@UnusedWildImport
+
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
 
@@ -11,9 +13,8 @@ from math import * #@UnusedWildImport
 Subject = DeclareSort('Subject')
 Resource = DeclareSort('Resource')
 
-#table = Renaming()
-#table = NormalizedSet()
 table = Normalized_enumerate()
+#table = Enumerate()
 # Variables
 table.add_variable("R", Resource)
 table.add_variable("X", Subject)
@@ -41,7 +42,6 @@ PcMemberAssignments = Function('PcMemberAssignments', Resource, BoolSort())
 PcMemberConflicts = Function('PcMemberConflicts', Resource, BoolSort()) 
 PcMemberInfo = Function('PcMemberInfo', Resource, BoolSort()) 
 PcMemberInfoPassword = Function('PcMemberInfoPassword', Resource, BoolSort()) 
-
 Paper = Function('Paper', Resource, BoolSort()) 
 PaperSubmission = Function('PaperSubmission', Resource, BoolSort()) 
 PaperDecision = Function('PaperDecision', Resource, BoolSort()) 
@@ -67,7 +67,8 @@ REQ = [subject(X), admin(X), pcchair(X), subreviewer(X), pcmember(X), conference
                             PcMemberAssignments(R), PcMemberConflicts(R), PcMemberInfo(R), PcMemberInfoPassword(R), \
                             Paper(R), PaperSubmission(R), PaperDecision(R), PaperConflicts(R), PaperAssignments(R), PaperReview(R),\
                             PaperReviewInfo(R), PaperReviewContent(R), PaperReviewInfoSubmission(R), PcMemberInfoischairflag(R),\
-                            isEQuserID(X), isPending(X), isEQPaper(X, R), MeetingFlag(R), isSubjectMeeting(X), isConflicted(X), isMeeting(X), isReviewInPlace(X)]
+                            isEQuserID(X), isPending(X), isEQPaper(X, R), MeetingFlag(R), isSubjectMeeting(X), isConflicted(X),\
+                            isMeeting(X), isReviewInPlace(X)]
 
 # ---------------- the rules = 47
 table.add_rule(Or(admin(X), pcchair(X), pcmember(X), subreviewer(X)), subject(X)) #0
@@ -119,16 +120,164 @@ table.add_rule(And(MeetingFlag(R), pcchair(X)), And(Pread(X, R), Pwrite(X, R)))
 table.add_rule(And(MeetingFlag(R), pcmember(X)), Pread(X, R))
 #======================================
 
+### also on actions
+#============ add few explicit unsafe representing disjunctions on resources (16)= 8*15=120
+table.add_rule(And(conference(R), conferenceInfo(R)), False)
+table.add_rule(And(conference(R), PcMember(R)), False)
+table.add_rule(And(conference(R), PcMemberAssignments(R)), False)
+table.add_rule(And(conference(R), PcMemberConflicts(R)), False)
+table.add_rule(And(conference(R), PcMemberInfo(R)), False)
+table.add_rule(And(conference(R), PcMemberInfoPassword(R)), False)
+table.add_rule(And(conference(R), Paper(R)), False)
+table.add_rule(And(conference(R), PaperSubmission(R)), False)
+table.add_rule(And(conference(R), PaperDecision(R)), False)
+table.add_rule(And(conference(R), PaperConflicts(R)), False)
+table.add_rule(And(conference(R), PaperAssignments(R)), False)
+table.add_rule(And(conference(R), PaperReview(R)), False)
+table.add_rule(And(conference(R), PaperReviewInfo(R)), False)
+table.add_rule(And(conference(R), PaperReviewContent(R)), False)
+table.add_rule(And(conference(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(conferenceInfo(R), PcMember(R)), False)
+table.add_rule(And(conferenceInfo(R), PcMemberAssignments(R)), False)
+table.add_rule(And(conferenceInfo(R), PcMemberConflicts(R)), False)
+table.add_rule(And(conferenceInfo(R), PcMemberInfo(R)), False)
+table.add_rule(And(conferenceInfo(R), PcMemberInfoPassword(R)), False)
+table.add_rule(And(conferenceInfo(R), Paper(R)), False)
+table.add_rule(And(conferenceInfo(R), PaperSubmission(R)), False)
+table.add_rule(And(conferenceInfo(R), PaperDecision(R)), False)
+table.add_rule(And(conferenceInfo(R), PaperConflicts(R)), False)
+table.add_rule(And(conferenceInfo(R), PaperAssignments(R)), False)
+table.add_rule(And(conferenceInfo(R), PaperReview(R)), False)
+table.add_rule(And(conferenceInfo(R), PaperReviewInfo(R)), False)
+table.add_rule(And(conferenceInfo(R), PaperReviewContent(R)), False)
+table.add_rule(And(conferenceInfo(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(PcMember(R), PcMemberAssignments(R)), False)
+table.add_rule(And(PcMember(R), PcMemberConflicts(R)), False)
+table.add_rule(And(PcMember(R), PcMemberInfo(R)), False)
+table.add_rule(And(PcMember(R), PcMemberInfoPassword(R)), False)
+table.add_rule(And(PcMember(R), Paper(R)), False)
+table.add_rule(And(PcMember(R), PaperSubmission(R)), False)
+table.add_rule(And(PcMember(R), PaperDecision(R)), False)
+table.add_rule(And(PcMember(R), PaperConflicts(R)), False)
+table.add_rule(And(PcMember(R), PaperAssignments(R)), False)
+table.add_rule(And(PcMember(R), PaperReview(R)), False)
+table.add_rule(And(PcMember(R), PaperReviewInfo(R)), False)
+table.add_rule(And(PcMember(R), PaperReviewContent(R)), False)
+table.add_rule(And(PcMember(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(PcMemberAssignments(R), PcMemberConflicts(R)), False)
+table.add_rule(And(PcMemberAssignments(R), PcMemberInfo(R)), False)
+table.add_rule(And(PcMemberAssignments(R), PcMemberInfoPassword(R)), False)
+table.add_rule(And(PcMemberAssignments(R), Paper(R)), False)
+table.add_rule(And(PcMemberAssignments(R), PaperSubmission(R)), False)
+table.add_rule(And(PcMemberAssignments(R), PaperDecision(R)), False)
+table.add_rule(And(PcMemberAssignments(R), PaperConflicts(R)), False)
+table.add_rule(And(PcMemberAssignments(R), PaperAssignments(R)), False)
+table.add_rule(And(PcMemberAssignments(R), PaperReview(R)), False)
+table.add_rule(And(PcMemberAssignments(R), PaperReviewInfo(R)), False)
+table.add_rule(And(PcMemberAssignments(R), PaperReviewContent(R)), False)
+table.add_rule(And(PcMemberAssignments(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(PcMemberConflicts(R), PcMemberInfo(R)), False)
+table.add_rule(And(PcMemberConflicts(R), PcMemberInfoPassword(R)), False)
+table.add_rule(And(PcMemberConflicts(R), Paper(R)), False)
+table.add_rule(And(PcMemberConflicts(R), PaperSubmission(R)), False)
+table.add_rule(And(PcMemberConflicts(R), PaperDecision(R)), False)
+table.add_rule(And(PcMemberConflicts(R), PaperConflicts(R)), False)
+table.add_rule(And(PcMemberConflicts(R), PaperAssignments(R)), False)
+table.add_rule(And(PcMemberConflicts(R), PaperReview(R)), False)
+table.add_rule(And(PcMemberConflicts(R), PaperReviewInfo(R)), False)
+table.add_rule(And(PcMemberConflicts(R), PaperReviewContent(R)), False)
+table.add_rule(And(PcMemberConflicts(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(PcMemberInfo(R), PcMemberInfoPassword(R)), False)
+table.add_rule(And(PcMemberInfo(R), Paper(R)), False)
+table.add_rule(And(PcMemberInfo(R), PaperSubmission(R)), False)
+table.add_rule(And(PcMemberInfo(R), PaperDecision(R)), False)
+table.add_rule(And(PcMemberInfo(R), PaperConflicts(R)), False)
+table.add_rule(And(PcMemberInfo(R), PaperAssignments(R)), False)
+table.add_rule(And(PcMemberInfo(R), PaperReview(R)), False)
+table.add_rule(And(PcMemberInfo(R), PaperReviewInfo(R)), False)
+table.add_rule(And(PcMemberInfo(R), PaperReviewContent(R)), False)
+table.add_rule(And(PcMemberInfo(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(PcMemberInfoPassword(R), Paper(R)), False)
+table.add_rule(And(PcMemberInfoPassword(R), PaperSubmission(R)), False)
+table.add_rule(And(PcMemberInfoPassword(R), PaperDecision(R)), False)
+table.add_rule(And(PcMemberInfoPassword(R), PaperConflicts(R)), False)
+table.add_rule(And(PcMemberInfoPassword(R), PaperAssignments(R)), False)
+table.add_rule(And(PcMemberInfoPassword(R), PaperReview(R)), False)
+table.add_rule(And(PcMemberInfoPassword(R), PaperReviewInfo(R)), False)
+table.add_rule(And(PcMemberInfoPassword(R), PaperReviewContent(R)), False)
+table.add_rule(And(PcMemberInfoPassword(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(Paper(R), PaperSubmission(R)), False)
+table.add_rule(And(Paper(R), PaperDecision(R)), False)
+table.add_rule(And(Paper(R), PaperConflicts(R)), False)
+table.add_rule(And(Paper(R), PaperAssignments(R)), False)
+table.add_rule(And(Paper(R), PaperReview(R)), False)
+table.add_rule(And(Paper(R), PaperReviewInfo(R)), False)
+table.add_rule(And(Paper(R), PaperReviewContent(R)), False)
+table.add_rule(And(Paper(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(PaperSubmission(R), PaperDecision(R)), False)
+table.add_rule(And(PaperSubmission(R), PaperConflicts(R)), False)
+table.add_rule(And(PaperSubmission(R), PaperAssignments(R)), False)
+table.add_rule(And(PaperSubmission(R), PaperReview(R)), False)
+table.add_rule(And(PaperSubmission(R), PaperReviewInfo(R)), False)
+table.add_rule(And(PaperSubmission(R), PaperReviewContent(R)), False)
+table.add_rule(And(PaperSubmission(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(PaperDecision(R), PaperConflicts(R)), False)
+table.add_rule(And(PaperDecision(R), PaperAssignments(R)), False)
+table.add_rule(And(PaperDecision(R), PaperReview(R)), False)
+table.add_rule(And(PaperDecision(R), PaperReviewInfo(R)), False)
+table.add_rule(And(PaperDecision(R), PaperReviewContent(R)), False)
+table.add_rule(And(PaperDecision(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(PaperConflicts(R), PaperAssignments(R)), False)
+table.add_rule(And(PaperConflicts(R), PaperReview(R)), False)
+table.add_rule(And(PaperConflicts(R), PaperReviewInfo(R)), False)
+table.add_rule(And(PaperConflicts(R), PaperReviewContent(R)), False)
+table.add_rule(And(PaperConflicts(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(PaperAssignments(R), PaperReview(R)), False)
+table.add_rule(And(PaperAssignments(R), PaperReviewInfo(R)), False)
+table.add_rule(And(PaperAssignments(R), PaperReviewContent(R)), False)
+table.add_rule(And(PaperAssignments(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(PaperReview(R), PaperReviewInfo(R)), False)
+table.add_rule(And(PaperReview(R), PaperReviewContent(R)), False)
+table.add_rule(And(PaperReview(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(PaperReviewInfo(R), PaperReviewContent(R)), False)
+table.add_rule(And(PaperReviewInfo(R), PaperReviewInfoSubmission(R)), False)
+
+table.add_rule(And(PaperReviewContent(R), PaperReviewInfoSubmission(R)), False)
+# ------------
+
 #### analysis ----------------
 start = process_time()
-size = 10 #   
+size = 47 # without
+#### with few explicit unsafe representing disjunction
+#size = 167 # 47+ 120 
+
+# ----
+# table.classify(size)
+# table.check_simplified(size)
+# table.parse_rules()
+# table.check_renamed()
+# print (str(table))
+# table.normalize()
+# print (str(table))
+# #table.compute_dnf()
 
 table.compute_table(REQ, size)
-print ("size = " + str(size) + " time = " + str(floor(process_time()-start)))
-#print (str(table))
-print (str(table.get_info()))
-table.show_problems()
-#table.check_problems(size)
-
-table.compare_problems(size, REQ)
+# print ("size = " + str(size) + " time = " + str(floor(process_time()-start)))
+# #print (str(table))
+# print (str(table.get_info()))
+#table.show_problems()
+# table.check_problems(size)
 

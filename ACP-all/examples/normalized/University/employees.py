@@ -1,5 +1,5 @@
 # -------------------
-# 21/6/2019
+# 12/8/2019
 # RBAC1 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### part only for Employees
@@ -149,49 +149,51 @@ table.add_rule(And(President(T, X), Provost(T, Y), revoke(T, X, Y)), Not(Provost
 table.add_rule(And(Provost(T, X), Dean(T, Y), revoke(T, X, Y)), Not(Dean(succ(T), Y))) #
 # --------
 
-### ------------------ resources exclusivity (7*3 = 21)
-table.add_rule(And(CollegeAcct(T, R), Roster(T, R)), False)
-table.add_rule(And(CollegeAcct(T, R), DeptBudget(T, R)), False)
-table.add_rule(And(CollegeAcct(T, R), DeptAcct(T, R)), False)
-table.add_rule(And(CollegeAcct(T, R), EmployeeParkingPermit(T, R)), False) 
-table.add_rule(And(CollegeAcct(T, R), EmployeeHealthInsur(T, R)), False)
-table.add_rule(And(CollegeAcct(T, R), UniversityAcct(T, R)), False)
+Distinct(CollegeAcct(T, R), Roster(T, R), DeptBudget(T, R), DeptAcct(T, R), EmployeeParkingPermit(T, R), EmployeeHealthInsur(T, R), UniversityAcct(T, R))
 
-table.add_rule(And(Roster(T, R), DeptBudget(T, R)), False)
-table.add_rule(And(Roster(T, R), DeptAcct(T, R)), False)
-table.add_rule(And(Roster(T, R), EmployeeParkingPermit(T, R)), False) 
-table.add_rule(And(Roster(T, R), EmployeeHealthInsur(T, R)), False)
-table.add_rule(And(Roster(T, R), UniversityAcct(T, R)), False)
-
-table.add_rule(And(DeptBudget(T, R), DeptAcct(T, R)), False)
-table.add_rule(And(DeptBudget(T, R), EmployeeParkingPermit(T, R)), False) 
-table.add_rule(And(DeptBudget(T, R), EmployeeHealthInsur(T, R)), False)
-table.add_rule(And(DeptBudget(T, R), UniversityAcct(T, R)), False)
-
-table.add_rule(And(DeptAcct(T, R), EmployeeParkingPermit(T, R)), False) 
-table.add_rule(And(DeptAcct(T, R), EmployeeHealthInsur(T, R)), False)
-table.add_rule(And(DeptAcct(T, R), UniversityAcct(T, R)), False)
-
-table.add_rule(And(EmployeeParkingPermit(T, R), EmployeeHealthInsur(T, R)), False)
-table.add_rule(And(EmployeeParkingPermit(T, R), UniversityAcct(T, R)), False)
-
-table.add_rule(And(EmployeeHealthInsur(T, R), UniversityAcct(T, R)), False)
-# --------
+# ### ------------------ resources exclusivity (7*3 = 21)
+# table.add_rule(And(CollegeAcct(T, R), Roster(T, R)), False)
+# table.add_rule(And(CollegeAcct(T, R), DeptBudget(T, R)), False)
+# table.add_rule(And(CollegeAcct(T, R), DeptAcct(T, R)), False)
+# table.add_rule(And(CollegeAcct(T, R), EmployeeParkingPermit(T, R)), False) 
+# table.add_rule(And(CollegeAcct(T, R), EmployeeHealthInsur(T, R)), False)
+# table.add_rule(And(CollegeAcct(T, R), UniversityAcct(T, R)), False)
+#  
+# table.add_rule(And(Roster(T, R), DeptBudget(T, R)), False)
+# table.add_rule(And(Roster(T, R), DeptAcct(T, R)), False)
+# table.add_rule(And(Roster(T, R), EmployeeParkingPermit(T, R)), False) 
+# table.add_rule(And(Roster(T, R), EmployeeHealthInsur(T, R)), False)
+# table.add_rule(And(Roster(T, R), UniversityAcct(T, R)), False)
+#  
+# table.add_rule(And(DeptBudget(T, R), DeptAcct(T, R)), False)
+# table.add_rule(And(DeptBudget(T, R), EmployeeParkingPermit(T, R)), False) 
+# table.add_rule(And(DeptBudget(T, R), EmployeeHealthInsur(T, R)), False)
+# table.add_rule(And(DeptBudget(T, R), UniversityAcct(T, R)), False)
+#  
+# table.add_rule(And(DeptAcct(T, R), EmployeeParkingPermit(T, R)), False) 
+# table.add_rule(And(DeptAcct(T, R), EmployeeHealthInsur(T, R)), False)
+# table.add_rule(And(DeptAcct(T, R), UniversityAcct(T, R)), False)
+#  
+# table.add_rule(And(EmployeeParkingPermit(T, R), EmployeeHealthInsur(T, R)), False)
+# table.add_rule(And(EmployeeParkingPermit(T, R), UniversityAcct(T, R)), False)
+#  
+# table.add_rule(And(EmployeeHealthInsur(T, R), UniversityAcct(T, R)), False)
+# # --------
       
-#======================================analysis
+# #======================================analysis
 # #### analysis ----------------
 # start = process_time()
 # # employees:  17+3 roles + 1 SMER +  16 permissions + 1 +  19 administrative + 19 revoke (75 rules)
 # ### 3 redundant rules
 # # employees:  16+3 roles + 1 SMER +  16 permissions + 1 +  19 administrative + 14 revoke (70 rules)
 # ### + 21 explicit unsafe
-# size =  16+3+1+16+ 1 + 19+14 +21
-#  
+# size =  16+3+1+16+ 1 + 19+14 #+21
+#   
 # table.compute_table(REQ_employees, size)
 # print ("size = " + str(size) + " time = " + str(floor(process_time()-start)))
-# #print (str(table))
-# print (str(table.get_info()))
-# table.show_problems()
-# #table.check_problems(size)
-
-#table.compare_problems(size, REQ)
+# # #print (str(table))
+# # print (str(table.get_info()))
+# # table.show_problems()
+# # #table.check_problems(size)
+# 
+# #table.compare_problems(size, REQ)

@@ -1,5 +1,5 @@
 # -------------------
-# 21/6/2019
+# 7/10/2019
 # example RBSIM needs predicates not PROP!
 # # # R23
 # table.add_rule(AGE < 67, Not(Retired))
@@ -7,7 +7,10 @@
 # table.add_rule(AGE >= 67, Retired) #### HERE unsat 
 # -----------------------
 
-from Normalized_OK import * #@UnusedWildImport
+
+from Normalized_OK_V2 import * #@UnusedWildImport
+#from Enumerate import * #@UnusedWildImport
+
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
 
@@ -16,11 +19,12 @@ Person = DeclareSort('Person')
 #Resource = DeclareSort('Resource')
 
 table = Normalized_enumerate()
+#table = Enumerate()
 table.add_variable("X", Person) # the person
 # Variables ordered !
 X = table.get_variable(0)
 
-# ---------------- the constants 
+# ---------------- the predicates
 # Have Health Insurance
 HHI = Function('HHI', Person, BoolSort())  
 # Basic Insurance Coverage = ADEQUATE or NOT
@@ -31,13 +35,6 @@ HLI = Function('HLI', Person, BoolSort())
 SHLI = Function('SHLI', Person, BoolSort())
 Married = Function('Married', Person, BoolSort())
 Children = Function('Children', Person, BoolSort())
-Age = Function('Age', Person, IntSort()) # Your age
-CS = Function('CS', Person, IntSort()) # Current Saving
-MS = Function('MS', Person, IntSort()) # Monthly Salary
-NoY2R = Function('NoY2R', Person, IntSort()) # Number Of Years To Retirement
-AoOC = Function('AoOC', Person, IntSort()) # Age of Oldest Child
-AoYC = Function('AoYC', Person, IntSort()) # Age Of Youngest Child 
-
 # Category Of Fund = NONE
 COFNone = Function('COFNone', Person, BoolSort())
 # Category Of Fund = MONEY MARKET 
@@ -52,7 +49,6 @@ COFAgressive = Function('COFAgressive', Person, BoolSort())
 COFTaxFree = Function('COFTaxFree', Person, BoolSort())
 # Category Of Fund = INCOME
 COFIncome = Function('COFIncome', Person, BoolSort())
-
 # Investment Goal = RETIREMENT 
 IGRetired = Function('IGRetired', Person, BoolSort())
 # Investment Goal = CHILDREN'S EDUCATION 
@@ -103,6 +99,14 @@ Loan = Function('Loan', Person, BoolSort())
 Fund = Function('Fund', Person, BoolSort())
 # Children Headed For College = YES 
 Headed = Function('Headed', Person, BoolSort())
+
+# ---------------- the functions
+Age = Function('Age', Person, IntSort()) # Your age
+CS = Function('CS', Person, IntSort()) # Current Saving
+MS = Function('MS', Person, IntSort()) # Monthly Salary
+NoY2R = Function('NoY2R', Person, IntSort()) # Number Of Years To Retirement
+AoOC = Function('AoOC', Person, IntSort()) # Age of Oldest Child
+AoYC = Function('AoYC', Person, IntSort()) # Age Of Youngest Child 
 
 ### only top-level expressions of correct requests
 ### Change some integer expressions
@@ -193,17 +197,56 @@ table.add_rule(Fund(X), CEAF(X))
 table.add_rule(And(Not(Fund(X)), Not(Loan(X)), Not(Scholarship(X))), Not(CEAF(X)))
 ### -------- 
 
+# ---------------- the rules 
+# some implicit rules = 21 between !REQ
+# others ? not really obvious
+# COF* are disjunct seems natural
+table.add_rule(And(COFNone(X), COFMoney(X)), False) 
+table.add_rule(And(COFNone(X), COFGI(X)), False) 
+table.add_rule(And(COFNone(X), COFCons(X)), False) 
+table.add_rule(And(COFNone(X), COFAgressive(X)), False) 
+table.add_rule(And(COFNone(X), COFTaxFree(X)), False) 
+table.add_rule(And(COFNone(X), COFIncome(X)), False) 
+# 
+table.add_rule(And(COFMoney(X), COFGI(X)), False) 
+table.add_rule(And(COFMoney(X), COFCons(X)), False) 
+table.add_rule(And(COFMoney(X), COFAgressive(X)), False) 
+table.add_rule(And(COFMoney(X), COFTaxFree(X)), False) 
+table.add_rule(And(COFMoney(X), COFIncome(X)), False) 
+#
+table.add_rule(And(COFGI(X), COFCons(X)), False) 
+table.add_rule(And(COFGI(X), COFAgressive(X)), False) 
+table.add_rule(And(COFGI(X), COFTaxFree(X)), False) 
+table.add_rule(And(COFGI(X), COFIncome(X)), False) 
+#
+table.add_rule(And(COFCons(X), COFAgressive(X)), False) 
+table.add_rule(And(COFCons(X), COFTaxFree(X)), False)
+table.add_rule(And(COFCons(X), COFIncome(X)), False)
+# 
+table.add_rule(And(COFAgressive(X), COFTaxFree(X)), False) 
+table.add_rule(And(COFAgressive(X), COFIncome(X)), False) 
+#
+table.add_rule(And(COFTaxFree(X), COFIncome(X)), False) 
+## ------------
 ### -------- analysis 
 #======================================analysis
 start = process_time()
-size = 10 # 
+size = 36 # 
+### with some explicit unsafe !REQ
+#size = 57  # 36 + 21
+
+#print (str(table))
 
 table.compute_table(REQ, size)
-print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
-  
-#print (str(table))
-print (str(table.get_info()))
+# print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
+#     
+# print (str(table.get_info()))
 # table.show_problems()
 # table.check_problems(size)
+#  
+# #table.compare_problems(size, REQ)
 
-table.compare_problems(size, REQ)
+### ============= Enumerate
+#  level  ----------- 2
+#  problems [And(BIC(X), Not(HHI(X))), And(Not(Children(X)), Headed(X)), And(Not(RTLow(X)), Important(X)), And(Not(RTLow(X)), Worry(X)), And(Not(RTMedium(X)), Budget(X)), And(Not(RTHigh(X)), Gambling(X)), And(Headed(X), Not(AoYC(X) < 16)), And(Headed(X), AoYC(X) >= 16)]
+#  time  763 checking 2048

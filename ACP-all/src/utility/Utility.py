@@ -1,19 +1,19 @@
 # ------------------------------
-# 20/6/2019
+# 6/6/2019
 # some additional utility functions
 #--------------------------
 
 from z3 import * #@UnusedWildImport
 from z3.z3util import * #@UnusedWildImport
 
-#------------- tactic from Z3
-skip = Tactic('skip')
+#------------- TACTIC from Z3
+SKIP = Tactic('skip')
 NNF = Tactic('nnf')
-simplify = Tactic('simplify')
-split = Tactic('split-clause')
+SIMPLIFY = Tactic('simplify')
+SPLIT = Tactic('split-clause')
 CNF = Tactic('tseitin-cnf')
-tactic = Then(NNF, simplify, Repeat(OrElse(split, skip)), simplify) 
-DNF = Then(CNF, simplify, Repeat(OrElse(Then(simplify, split), skip))) 
+TACTIC = Then(NNF, SIMPLIFY, Repeat(OrElse(SPLIT, SKIP)), SIMPLIFY) 
+#DNF = Then(CNF, simplify, Repeat(OrElse(Then(simplify, split), skip))) 
 # 
 
 # -----------------------
@@ -72,9 +72,9 @@ def compute_index(tocombine, toremove, last, size):
 # --- compute_index
 
 # -----------------
-# compare two binary REQ and compute "common" bits
+# compare two binary REQ and compute "base" bits
 # left, right are two binarys all with same length
-# return a common binary REQ or [] if fails
+# return a base binary REQ or [] if fails
 # and maximal indicator
 def make_common(left, right):
     #print ("make_common " + str(left) + " / " + str(right))
@@ -99,7 +99,7 @@ def make_common(left, right):
 # --- make_common
 
 # -------------
-# compute common binary of binaries in lbinary
+# compute base binary of binaries in lbinary
 # return a Binary or [] if unsat
 def make_all_common(nbreq, lbinary):
     res = []
@@ -150,12 +150,12 @@ def estimate_1(nbreq, lbinary):
 # --- estimate_1
 
 # ----------------------
-# TODO estimate MAX bound of common size
+# TODO estimate MAX bound of base size
 # complete all combinations and forget unsat
 # and measure 
 # nbreq size of atoms
 # lbinaryreq, lasts: combinations and corresponding last index
-# allreq: reductions from tactic
+# allreq: reductions from TACTIC
 # return True if no need to continue
 def estimate(nbreq, lbinaryreq, lasts, allreq):
     res = 0  # to store current max
@@ -217,10 +217,10 @@ def estimate(nbreq, lbinaryreq, lasts, allreq):
 # # --- make_common
 
 # # -----------------
-# # compare two binary and compute "common" bits
+# # compare two binary and compute "base" bits
 # # left, right are two binarys
 # # mask is a REQB binary, all with same length
-# # return a common binary or [] if fails
+# # return a base binary or [] if fails
 # # and maximal indicator
 # def make_common(left, right, mask):
 #     #print ("make_common " + str(left) + " / " + str(right))
@@ -317,21 +317,36 @@ def get_list(andgoal):
 # may be us as_expr too
 
 # ----------
-# TODO non plus complexe
-# a solution could be to expand -1 and test is_included_in for each ...
-# TODO calculer sort de diff successfive
-# test binary inclusion of lbin into a List[Binary]
-# all binary have the same length
-# TODO principle A = BA + CA
-# possible en parrallel bit/bit
-# def is_included(lbin, lbins):
-#     # aux to combine bit to bit
-#     #aux = lambda X,Y:  
-#     #size = len(lbin)
-#     for bit in lbin:
-#         for right in lbins:
-#  
-#         # --- end for right
-#     # TODO how to compare ?
-# # --- is_included
+# prod, latoms list of Z3
+# atom Z3 not in prod
+# insert atom in prod but preserve latoms ordering
+# and take care of negated
+def sortit(prod, atom, latoms):
+    #print ("sortit " + str(prod) + "  " + str(atom) + " " + str(latoms))
+    if (len(prod) == 0):
+        return [atom]
+    else:
+        res = []
+        pos = 0
+        for btom in latoms:
+            #print (str(pos))
+            if (pos < len(prod)):
+                inp = prod[pos]
+                if (atom == Not(inp)):
+                    return []
+                elif (inp == Not(atom)):
+                    return []
+                elif (atom == btom):
+                    res.append(atom)
+                elif (btom == inp):
+                    pos += 1
+                    res.append(inp)
+                # ---
+            elif (atom not in res):   # something to add or not
+                res.append(atom)
+            # ---
+        # ---
+        return res
+    # ---
+# --- sortit
 

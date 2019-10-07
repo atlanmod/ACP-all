@@ -1,5 +1,5 @@
 # -------------------
-# 20/6/2019
+# 7/10/2019
 # example RBSIM needs predicates not PROP!
 # # # R23
 # table.add_rule(AGE < 67, Not(Retired))
@@ -8,6 +8,12 @@
 # -----------------------
 
 from Enumerate import * #@UnusedWildImport
+#from Enumerate_before import * #@UnusedWildImport
+#from Normalized_enumerate29_04 import * #@UnusedWildImport
+#from Normalized_binary import * #@UnusedWildImport
+#from Normalized_binary import * #@UnusedWildImport
+from time import * #@UnusedWildImport
+from math import * #@UnusedWildImport
 
 # --------------------------
 Person = DeclareSort('Person')
@@ -110,6 +116,50 @@ REQ =   [HHI(X), BIC(X), HLI(X), Married(X), Children(X), AoOC(X) <= 7, AoOC(X) 
                            IRA(X), CHC(X), Home(X), Want(X), Gambling(X), Important(X), Worry(X), Budget(X),\
             AoYC(X) < 16, AoYC(X) >= 16, College(X), Scholarship(X), Loan(X), Fund(X), Headed(X)]
 
+# ## all independent except 
+# # # AoOC(X) <=7 : 5 et :6
+# aux = [-1]*(len(REQ))
+# aux[5] = 1
+# aux[6] = 1
+# # to store unsat atom dependencies
+# table.CRITICAL = [aux]
+# 
+# # NoY2R(X) < 10 : 8 NoY2R(X) >= 10 : 9, NoY2R(X) < 20 : 10, NoY2R(X) >= 20 : 11
+# # TODO !!!! est-ce complet ?
+# aux = [-1]*(len(REQ))
+# aux[8] = 1
+# aux[9] = 1
+# table.CRITICAL.append(aux)
+# aux = [-1]*(len(REQ))
+# aux[8] = 1
+# aux[10] = 0
+# table.CRITICAL.append(aux)
+# aux = [-1]*(len(REQ))
+# aux[8]  = 1
+# aux[11]  = 1
+# table.CRITICAL.append(aux)
+# aux = [-1]*(len(REQ))
+# aux[9] = 0
+# aux[10] = 0
+# table.CRITICAL.append(aux)
+# aux = [-1]*(len(REQ))
+# aux[9] = 0
+# aux[11] = 1
+# table.CRITICAL.append(aux)
+# aux = [-1]*(len(REQ))
+# aux[10] = 1
+# aux[11] = 1
+# table.CRITICAL.append(aux)
+# # Age(X) < 65:12, Age(X) >= 65:13
+# aux = [-1]*(len(REQ))
+# aux[12] = 1
+# aux[13] = 1
+# table.CRITICAL.append(aux)
+# # AoYC(X) < 16:27 AoYC(X) >= 16:28
+# aux = [-1]*(len(REQ))
+# aux[27] = 1
+# aux[28] = 1
+# table.CRITICAL.append(aux)
 
 # # ---------------- the rules 
 # ------------- business rules = 36
@@ -195,13 +245,19 @@ table.add_rule(And(Not(Fund(X)), Not(Loan(X)), Not(Scholarship(X))), Not(CEAF(X)
 #======================================analysis
 start = process_time()
 size = 20 # 
+# table.classify(size)
+# table.check_simplified(size) # OK
+# table.parse_rules()
+# table.normalize()
 
-table.compute_table(size, REQ)
+table.compute_table(REQ, size)
 print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
  
 # #print (str(table))
 print (str(table.get_info()))
-table.check_problems()
+# table.check_problems()
+# for X in table.problems:
+#     print(str(table.rewrite(X)) + "\n")
 
 #table.compare_problems(size, REQ)
 

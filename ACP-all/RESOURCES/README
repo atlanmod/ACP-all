@@ -1,5 +1,4 @@
-%%%% 20/6/2019
-
+%%%% 7/10/2019
 
 %%%% Examples and source code prototype for the extracting a summary of
 all the problems in a rule-based system
@@ -13,24 +12,18 @@ This was done with Eclipse and plugin pydev (https://www.pydev.org/)
  
 ========== How to use
 
-SEE examples/enumerate/testAdi2009.py 
+SEE examples/normalized/testAdi2009.py 
 
 the line "table.compute_table(size, REQ)" compute the problems
 look at the end of the file and execute it
 
-SEE examples/normalized/testAdi2009.py
-same scenario with the combine algorithm 
-but in addition "table.compare_problems(size, REQ)" can be used
-to compare both results
-
-
 ========== Repository structure
 
 RESOURCES/
+ README this contents
 
-
-examples/enumerate contains some examples and results for enumerate
-examples/combine contains some examples and results for combine
+examples/enumerate contains some examples for enumerate
+examples/normalized contains some examples for combine
 
 src/ contains the same base code than ACP (https://github.com/atlanmod/ACP) 
     enumerative/ for the enumerative algorithm

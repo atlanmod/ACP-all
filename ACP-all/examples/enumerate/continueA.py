@@ -1,5 +1,5 @@
 # -------------------
-# 20/6/2019
+# 7/10/2019
 # CONTINUE A from test.tspass
 # -------------------
 
@@ -119,9 +119,11 @@ table.add_rule(And(MeetingFlag(R), pcmember(X)), Pread(X, R))
 
 #### analysis ----------------
 start = process_time()
-size = 10 # 30  !!! 40 47 
-table.compute_table(size, REQ)
+size = 10 #47 # 30 40 47 
+#table.initialize(size, REQ)
+#table.enumerate()
+table.compute_table(REQ, size)
 print ("size= " + str(size) + " time " + str(floor(process_time()-start)))
 #print (str(table))
-print(table.get_info())
-table.check_problems()
+# print(table.get_info())
+# table.check_problems()

@@ -1,7 +1,8 @@
 # ------------------
-# 29/3/2019
+# 24/9/2019
 # Class to do a pass of simplification and classification
 # remove  tautology and DON'T classify explicit unsafe 
+# simplified are stored in store
 # -------------------
 
 from RuleSet import * #@UnusedWildImport

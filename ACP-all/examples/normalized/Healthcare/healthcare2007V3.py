@@ -1,5 +1,5 @@
 # -------------------
-# 21/6/2019
+# 7/10/2019
 # RBAC2 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### without simplification
@@ -8,7 +8,7 @@
 ### V3 new formulation of revoke with ForAll([Q], And((Q < T), assign(Q, X, Y)) inside conditions
 # -----------------
 
-from Normalized_OK import * #@UnusedWildImport
+from Normalized_OK_V2 import * #@UnusedWildImport
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
 
@@ -74,7 +74,7 @@ assign = Function('assign',  IntSort(), Person, Person, BoolSort())
 ### revoke
 revoke = Function('revoke',  IntSort(), Person, Person, BoolSort()) 
 
-## ThirdParties ? 
+## TODO doit manquer des choses ThirdParties ? T et T+1 ?
 REQ= [Nurse(T, X), Doctor(T, X), Receptionist(T, X), MedicalManager(T, X), Manager(T, X), Patient(T, X), PrimaryDoctor(T, X), \
                             OldMedicalRecords(T, R), RecentMedicalRecords(T, R), PrivateNotes(T, R), Prescriptions(T, R), PatientPersonalInfo(T, R), \
                             PatientFinancialInfo(T, R), PatientMedicalInfo(T, R), CarePlan(T, R), Appointment(T, R), ProgressNotes(T, R), \
@@ -141,6 +141,8 @@ table.add_rule(And(Manager(T, X), assign(T, X, Y)), MedicalTeam(T+1, Y)) # 47
 # --------------------------------------------
 
 ### ************************** new formulation revoke (13) 
+### ? is a tautology ?
+#### # TODO revoir le principe !!!
 table.add_rule(And(Doctor(T, X), revoke(T, X, Y), ForAll([Q], And((Q < T), assign(Q, X, Y))), Not(assign(T, X, Y))), Not(ThirdParty(T+1, Y))) # 48
 table.add_rule(And(Doctor(T, X), revoke(T, X, Y), ForAll([Q], And((P < T), assign(P, X, Y))), Not(assign(T, X, Y))), Not(ReferredDoctor(T+1, Y))) # 49
 table.add_rule(And(MedicalManager(T, X),  revoke(T, X, Y), ForAll([Q], And((P < T), assign(P, X, Y))), Not(assign(T, X, Y))), Not(MedicalTeam(T+1, Y)))
@@ -249,15 +251,137 @@ table.add_rule(And(LegalAgreement(T, R), Bills(T, R)), False)
 ## -------
 #======================================analysis
 start = process_time()
-size = 10 # 61 #+ 78
+size = 61 #+ 78
 
 table.compute_table(REQ, size)
-print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
-    
-#print (str(table))
-print (str(table.get_info()))
-table.show_problems()
+# print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
+#     
+# #print (str(table))
+# print (str(table.get_info()))
+# table.show_problems()
 #table.check_problems(size)
 
-table.compare_problems(size, REQ)
+#table.compare_problems(REQ, size)
 
+#### ---------------
+### enumerate 61
+#  ----------------- problems  
+# And(Doctor(T, X), Not(PrimaryDoctor(T, X)))
+# And(Patient(T, X), PrimaryDoctor(T, X))
+# And(Doctor(T, X), Receptionist(T, X))
+# And(Nurse(T, X), Doctor(T, X))
+# And(Manager(T, X), assign(T, X, Y))
+# And(Doctor(T, X), Patient(T, X))
+# exp1 = Exists(table.variables, Or(And(Doctor(T, X), Not(PrimaryDoctor(T, X))), And(Patient(T, X), PrimaryDoctor(T, X)),
+#                                  And(Doctor(T, X), Receptionist(T, X)), And(Nurse(T, X), Doctor(T, X)),
+#                                  And(Manager(T, X), assign(T, X, Y)), And(Doctor(T, X), Patient(T, X))))
+#### binary 61
+#  ----------------- problems  
+# And(Doctor(T, X), Not(PrimaryDoctor(T, X)))
+# And(Patient(T, X), PrimaryDoctor(T, X))
+# And(Doctor(T, X), Receptionist(T, X))
+# And(Nurse(T, X), Doctor(T, X))
+# And(Manager(T, X), assign(T, X, Y))
+# And(Doctor(T, X),
+#     Patient(T, X),
+#     Bills(T, R),
+#     assign(T, X, Y))
+# And(Doctor(T, X),
+#     Manager(T, X),
+#     Patient(T, X),
+#     OldMedicalRecords(T, R),
+#     RecentMedicalRecords(T, R))
+# And(Doctor(T, X),
+#     Manager(T, X),
+#     Patient(T, X),
+#     PrivateNotes(T, R),
+#     Prescriptions(T, R))
+# exp2 = Exists(table.variables, Or(And(Doctor(T, X), Not(PrimaryDoctor(T, X))), And(Patient(T, X), PrimaryDoctor(T, X)),
+#                                   And(Doctor(T, X), Receptionist(T, X)), And(Nurse(T, X), Doctor(T, X)), 
+#                                   And(Manager(T, X), assign(T, X, Y)), And(Doctor(T, X), Patient(T, X), Bills(T, R), assign(T, X, Y)),
+#                                   And(Doctor(T, X), Manager(T, X), Patient(T, X), OldMedicalRecords(T, R), RecentMedicalRecords(T, R)),
+#                                   And(Doctor(T, X), Manager(T, X), Patient(T, X), PrivateNotes(T, R), Prescriptions(T, R))))
+# S = Solver()
+# S.add(exp1)
+# S.add(Not(exp2))
+# print (str(S.check()))
+# S.reset()
+# S.add(exp2)
+# S.add(Not(exp1))
+# print (str(S.check()))
+### OK 
+
+# ### ============== test equiv
+#S = Solver()
+# #  original
+# exp1 = Exists(table.variables, Or(And(Doctor(T, X), Not(PrimaryDoctor(T, X))),
+#                                 And(Patient(T, X), PrimaryDoctor(T, X)),
+#                                 And(Doctor(T, X), Receptionist(T, X)),
+#                                 And(Nurse(T, X), Doctor(T, X)),
+#                                 And(Manager(T, X), assign(T, X, Y)),
+#                                 And(Doctor(T, X),
+#                                     Patient(T, X),
+#                                     Bills(T, R),
+#                                     assign(T, X, Y)),
+#                                 And(Doctor(T, X),
+#                                     Manager(T, X),
+#                                     Patient(T, X),
+#                                     OldMedicalRecords(T, R),
+#                                     RecentMedicalRecords(T, R)),
+#                                 And(Doctor(T, X),
+#                                     Manager(T, X),
+#                                     Patient(T, X),
+#                                     PrivateNotes(T, R),
+#                                     Prescriptions(T, R))))
+# # without undefined in levels
+# exp2 = Exists(table.variables, Or(And(Doctor(T, X), Not(PrimaryDoctor(T, X))),
+#                                 And(Patient(T, X), PrimaryDoctor(T, X)),
+#                                 And(Doctor(T, X), Receptionist(T, X)),
+#                                 And(Nurse(T, X), Doctor(T, X)),
+#                                 And(Manager(T, X), assign(T, X, Y)),
+#                                 And(Doctor(T, X),
+#                                     Patient(T, X),
+#                                     Bills(T, R),
+#                                     assign(T, X, Y)),
+#                                 And(Doctor(T, X),
+#                                     Manager(T, X),
+#                                     Patient(T, X),
+#                                     OldMedicalRecords(T, R),
+#                                     RecentMedicalRecords(T, R)),
+#                                 And(Doctor(T, X),
+#                                     Manager(T, X),
+#                                     Patient(T, X),
+#                                     PrivateNotes(T, R),
+#                                     Prescriptions(T, R))))
+
+##### equiv size=61 with OK and heuristic 
+### syntactic obvious
+# And(Doctor(T, X), Not(PrimaryDoctor(T, X)))
+# And(Patient(T, X), PrimaryDoctor(T, X))
+# And(Doctor(T, X), Receptionist(T, X))
+# And(Nurse(T, X), Doctor(T, X))
+# And(Manager(T, X), assign(T, X, Y))
+# And(Doctor(T, X), Patient(T, X))
+# 
+# And(Doctor(T, X), Not(PrimaryDoctor(T, X)))
+# And(Patient(T, X), PrimaryDoctor(T, X))
+# And(Doctor(T, X), Receptionist(T, X))
+# And(Nurse(T, X), Doctor(T, X))
+# And(Manager(T, X), assign(T, X, Y))
+# And(Doctor(T, X), Patient(T, X))
+# 
+# S.add(exp1)
+# S.add(Not(exp2))
+# print ("=> " + str(S.check()))
+# S.reset()
+# S.add(exp2)
+# S.add(Not(exp1))
+# print ("<= " + str(S.check()))
+
+# ### is it unsat ?
+# S = Solver()
+# S.add(Exists(table.variables, And(Doctor(T, X),
+#     Not(assign(T, X, Y)),
+#     revoke(T, X, Y),
+#     ForAll(Q, And(Q < T, assign(Q, X, Y))))))
+# print (S.check()) # unsat OK !!!

@@ -15,13 +15,14 @@ class RuleSet():
     
     # by default it is True
     def __init__(self):
-        # quantifier variables common to all
+        # quantifier variables base to all
         self.variables = []
         # cond => conc 
         self.rules = []
         # local solver
         self.solver = Solver()
-        self.solver.set(timeout = 1000) ### 1s important parameter
+        #self.solver.set(timeout = 1000) ### 1s important parameter
+        self.solver.set(timeout = 1000000000) 
         # to count unknow cases
         self.unknown = 0
     # --- end init

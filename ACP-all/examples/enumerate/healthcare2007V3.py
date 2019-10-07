@@ -1,5 +1,5 @@
 # -------------------
-# 20/6/2019
+# 7/10/2019
 # RBAC2 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### without simplification
@@ -8,6 +8,7 @@
 ### V3 new formulation of revoke with ForAll([Q], And((Q < T), assign(Q, X, Y)) inside conditions
 # -----------------
 
+### TODO new enumerate
 from Enumerate import * #@UnusedWildImport
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
@@ -74,7 +75,7 @@ assign = Function('assign',  IntSort(), Person, Person, BoolSort())
 ### revoke
 revoke = Function('revoke',  IntSort(), Person, Person, BoolSort()) 
 
-## lack  ThirParties ? 
+## TODO doit manquer des choses ThirParties ? T et T+1 ?
 REQ= [Nurse(T, X), Doctor(T, X), Receptionist(T, X), MedicalManager(T, X), Manager(T, X), Patient(T, X), PrimaryDoctor(T, X), \
                             OldMedicalRecords(T, R), RecentMedicalRecords(T, R), PrivateNotes(T, R), Prescriptions(T, R), PatientPersonalInfo(T, R), \
                             PatientFinancialInfo(T, R), PatientMedicalInfo(T, R), CarePlan(T, R), Appointment(T, R), ProgressNotes(T, R), \
@@ -158,9 +159,9 @@ table.add_rule(And(ThirdParty(T, X), revoke(T, X, Y), ForAll([Q], Implies((Q < T
 
 #======================================analysis
 
-size = 7 # 20 30 40 50 61 ?
-table.compute_table(size, REQ)
-print (str(table))
-print (str(table.get_info()))
-table.check_problems()
+size = 10 # 20 30 40 50 61 ?
+table.compute_table(REQ, size)
+# print (str(table))
+# print (str(table.get_info()))
+# table.check_problems()
 

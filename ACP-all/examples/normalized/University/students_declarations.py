@@ -1,12 +1,13 @@
 # -------------------
-# 21/6/2019
+# 22/8/2019
 # RBAC1 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### Student part only 
 ### Try to encode all relations even unecessary hierarchy
 # -----------------
 
-from Normalized_OK import * #@UnusedWildImport
+#from Enumerate import * #@UnusedWildImport
+from Normalized_OK_V2 import * #@UnusedWildImport
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
 
@@ -16,6 +17,7 @@ Resource = DeclareSort('Resource')
 Time = DeclareSort('Time')
 
 table = Normalized_enumerate()
+#table = Enumerate()
 # Variables
 table.add_variable("X", Person)
 table.add_variable("R", Resource)

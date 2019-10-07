@@ -1,15 +1,18 @@
 # -------------------
-# 21/6/2019
+# 7/10/2019
 # Test Adi2009 
 # -------------------
 
-from Normalized_OK import * #@UnusedWildImport
+# uncomment two lines for testing with Enumerate
+#from Enumerate import * #@UnusedWildImport
+from Normalized_OK_V2 import * #@UnusedWildImport
 
 # --------------------------
 Patient = DeclareSort('Patient')
 Hospital = DeclareSort('Hospital')
 
 table = Normalized_enumerate()
+#table = Enumerate()
 # Variables
 table.add_variable("p", Patient)
 table.add_variable("h", Hospital)
@@ -55,5 +58,3 @@ print ("--------- Show problems")
 table.show_problems()
 print ("--------- Check undefinedness (=> Not(R))")
 table.check_problems(size)
-print ("--------- Compare both results ")
-#table.compare_problems(size, REQ)

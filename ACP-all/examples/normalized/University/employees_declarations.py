@@ -1,5 +1,5 @@
 # -------------------
-# 21/6/2019
+# 12/8/2019
 # RBAC1 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### part only for Employees
@@ -34,7 +34,7 @@ Staff = Function('Staff', Time, Person, BoolSort())
 TenuredFac = Function('TenuredFac', Time, Person, BoolSort()) # ? deduction
 AsstForStudentAffairs = Function('AsstForStudentAffairs', Time, Person, BoolSort()) # ?
 
-### predicates for resources
+### predicates for resources (7)
 CollegeAcct = Function('CollegeAcct',  Time, Resource, BoolSort())
 Roster = Function('Roster',  Time, Resource, BoolSort())
 DeptBudget = Function('DeptBudget',  Time, Resource, BoolSort())
@@ -43,7 +43,7 @@ EmployeeParkingPermit = Function('EmployeeParkingPermit',  Time, Resource, BoolS
 EmployeeHealthInsur = Function('EmployeeHealthInsur',  Time, Resource, BoolSort())
 UniversityAcct = Function('UniversityAcct',  Time, Resource, BoolSort())
 
-### for action (no relation known between them)
+### for action (no relation known between them) (10)
 authorizeExpenditure = Function('authorizeExpenditure',  Time, Person, Resource, BoolSort())
 approveLateWithdrawal = Function('approveLateWithdrawal',  Time, Person, Resource, BoolSort())
 approveGradeChange = Function('approveGradeChange',  Time, Person, Resource, BoolSort())
