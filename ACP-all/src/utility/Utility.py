@@ -1,20 +1,56 @@
 # ------------------------------
-# 20/6/2019
+# 23/1/2020
 # some additional utility functions
 #--------------------------
 
 from z3 import * #@UnusedWildImport
 from z3.z3util import * #@UnusedWildImport
+#from quine import * #@UnusedWildImport
 
-#------------- tactic from Z3
-skip = Tactic('skip')
+#------------- TACTIC from Z3
+SKIP = Tactic('skip')
 NNF = Tactic('nnf')
-simplify = Tactic('simplify')
-split = Tactic('split-clause')
+SIMPLIFY = Tactic('simplify')
+SPLIT = Tactic('split-clause')
 CNF = Tactic('tseitin-cnf')
-tactic = Then(NNF, simplify, Repeat(OrElse(split, skip)), simplify) 
-DNF = Then(CNF, simplify, Repeat(OrElse(Then(simplify, split), skip))) 
-# 
+TACTIC = Then(NNF, SIMPLIFY, Repeat(OrElse(SPLIT, SKIP)), SIMPLIFY) 
+DNF = Then(CNF, SIMPLIFY, Repeat(OrElse(Then(SIMPLIFY, SPLIT), SKIP))) 
+# to counte the new variables
+COUNTER_VARS = 0
+
+# -----------------------
+# Rename the variables of this expression
+# Returns a list of Const() and the new expression
+def renaming(Z3exp):
+    global COUNTER_VARS
+    varss = get_vars(Z3exp)
+    newvars = []
+    for v in varss:
+        newvars.append(Const(v.decl().name() + '_' + str(COUNTER_VARS), v.sort()))
+        COUNTER_VARS += 1
+    return (newvars, substitute(Z3exp, [(varss[I], newvars[I]) for I in range(len(varss))]))
+# --- renaming
+
+# -----------------------
+# list of defined bit positions (0,1)
+# abin:Binary
+def defined(abin):
+    return [I for I in range(len(abin)) if (abin[I] != -1)]
+# --- defined
+
+# -----------------------
+# list of undefined bit positions (== -1)
+# abin:Binary
+def undefined(abin):
+    return [I for I in range(len(abin)) if (abin[I] == -1)]
+# --- undefined
+
+# -----------------------
+# reduce a (X) Binary:REQB to a Binary:REQ with Y=self.REQB 
+# makes a projection of the Binary on correct literals
+def req_reduce(X, Y):
+    return [X[I] for I in range(len(Y)) if (Y[I] == 1)]   
+# --- req_reduce
 
 # -----------------------
 # deep equal for two List[Binary] without repetition
@@ -33,7 +69,7 @@ def equals(l1, l2):
 # flag = True => ForAll else Exists
 # variables the declared free variables
 # rename is a renamed expression
-# return a z3 renamed exprssion with a quantifier
+# return a z3 renamed expression with a quantifier
 def built_quantified(renamed, variables, flag):
     freevars = [] 
     ids = [X.get_id() for X in variables]
@@ -72,9 +108,9 @@ def compute_index(tocombine, toremove, last, size):
 # --- compute_index
 
 # -----------------
-# compare two binary REQ and compute "common" bits
+# compare two binary REQ and compute "base" bits
 # left, right are two binarys all with same length
-# return a common binary REQ or [] if fails
+# return a base binary REQ or [] if fails
 # and maximal indicator
 def make_common(left, right):
     #print ("make_common " + str(left) + " / " + str(right))
@@ -98,8 +134,30 @@ def make_common(left, right):
     return (([], False) if finish else (res, maximal))
 # --- make_common
 
+# -----------------
+# intersection of two binary with the same length
+# return either [] or a new list
+def make_and(left, right):
+    #print ("make_common " + str(left) + " / " + str(right))
+    size = len(left)
+    res = [-1]*size
+    i = 0
+    finish = False
+    while (i < size) and not finish:
+        if (left[i] == right[i]):
+            res[i] = left[i] 
+        elif  ((left[i] == -1) or (right[i] == -1)):
+            res[i] = -(left[i] * right[i])
+        else: # 1!=0
+            finish = True
+        # --- if 
+        i += 1
+    #print("make_common= " + str([] if finish else res))
+    return [] if finish else res
+# --- make_and
+
 # -------------
-# compute common binary of binaries in lbinary
+# compute base binary of binaries in lbinary
 # return a Binary or [] if unsat
 def make_all_common(nbreq, lbinary):
     res = []
@@ -131,31 +189,31 @@ def make_all_common(nbreq, lbinary):
 def estimate_1(nbreq, lbinary):
     res = 0
     for I in range(nbreq):
-        defined = False
+        number_defined = False
         column = 0 # 1 or 0
         for J in range(len(lbinary)):
             bit = lbinary[J][I]
             if (bit != -1):
-                if (defined): # it was set to
+                if (number_defined): # it was set to
                     if (column != bit):
-                        defined = False
+                        number_defined = False
                 else:
                     column = bit
-                    defined = True
+                    number_defined = True
         # --- for J
-        if (defined):
+        if (number_defined):
             res += 1
     # --- for I 
     return res
 # --- estimate_1
 
 # ----------------------
-# TODO estimate MAX bound of common size
+# estimate MAX bound of base size
 # complete all combinations and forget unsat
 # and measure 
 # nbreq size of atoms
 # lbinaryreq, lasts: combinations and corresponding last index
-# allreq: reductions from tactic
+# allreq: reductions from TACTIC
 # return True if no need to continue
 def estimate(nbreq, lbinaryreq, lasts, allreq):
     res = 0  # to store current max
@@ -164,27 +222,27 @@ def estimate(nbreq, lbinaryreq, lasts, allreq):
         localmax = 0  # to count local max
         binary = lbinaryreq[K]
         #print ("binary " + str(binary))
-        # count bit defined for each column
+        # count bit number_defined for each column
         for I in range(nbreq):
             bitl = binary[I]
             if (bitl != -1):
-                defined = True
+                number_defined = True
                 column = bitl  # 1 or 0                
             else:
-                defined = False
+                number_defined = False
                 column = 0  # default not used
             # ---
             for J in range(lasts[K]+1, size):
                 bitr = allreq[J][I]
                 if (bitr != -1):
-                    if (defined):  # it was set to
+                    if (number_defined):  # it was set to
                         if (column != bitr):
-                            defined = False
+                            number_defined = False
                     else:
                         column = bitr
-                        defined = True
+                        number_defined = True
             # --- for J
-            if (defined):
+            if (number_defined):
                 localmax += 1            
         # --- for I
         #print ("localmax " + str(localmax))
@@ -194,57 +252,6 @@ def estimate(nbreq, lbinaryreq, lasts, allreq):
     return res    
 # --- estimate
 
-# # -----------------
-# # combined and check exclusivity of two List[1/0]
-# # return the union of the combinations and True if exclusive
-# def make_combine(left, right):
-#     #print ("make_common " + str(left) + " / " + str(right))
-#     size = len(left)
-#     res = [0]*size
-#     I = 0
-#     finish = True
-#     while (I < size):
-#         if ((left[I] == 1) and (right[I] == 1)):
-#             finish = False
-#             res[I] = 1
-#         elif (left[I] == 0):
-#             res[I] = right[I]
-#         elif (right[I] == 0):
-#             res[I] = left[I]
-#         I += 1
-#     #print("make_common= " + str([] if finish else res))
-#     return (res, finish)
-# # --- make_common
-
-# # -----------------
-# # compare two binary and compute "common" bits
-# # left, right are two binarys
-# # mask is a REQB binary, all with same length
-# # return a common binary or [] if fails
-# # and maximal indicator
-# def make_common(left, right, mask):
-#     #print ("make_common " + str(left) + " / " + str(right))
-#     res = [-1]*len(mask)
-#     i = 0
-#     finish = False
-#     maximal = True
-#     while (i < len(mask)) and not finish:
-#         # only for REQ==1
-#         if (mask[i] == 1):
-#             if (left[i] == right[i]):
-#                 res[i] = left[i] 
-#                 if (res[i] == -1):
-#                     maximal = False
-#             elif  ((left[i] == -1) or (right[i] == -1)):
-#                 res[i] = -(left[i] * right[i])
-#             else: # 1!=0
-#                 finish = True
-#         # --- if mask
-#         i += 1
-#     #print("make_common= " + str([] if finish else res))
-#     #return ([] if finish else res)
-#     return (([], False) if finish else (res, maximal))
-# # --- make_common
 
 # ----------------
 # extract part to simplify and  don't forget duplication
@@ -271,6 +278,27 @@ def add_aux(new, common, result, commonsout):
         result.append(new)
         commonsout.append(common)
 # --- add_aux  
+
+# ------------------
+# TODO select all sublist of list of size equal to nb
+# return a list of sublists
+def select(listpos, nb):
+    result = [[]]
+    while (nb > 0):
+        tmp = []
+        listp = listpos
+        for sub in result:
+            for p in listp:
+                tmp.append(sub+[p])
+            # first element removed 
+            listp = listp[1:]
+        listpos = listpos[1:]
+        #print (str(listpos))
+        result = tmp
+        nb -= 1
+    # --- while
+    return result
+# --- select  
  
 #----------------------
 # expand don't care in a binary
@@ -288,6 +316,28 @@ def expand(binary):
     return tmp
 # --- end of expand
 
+#----------------------
+# expand some don't care positions  in a binary
+# and return a copy list of binary
+def expand_some(binary, lpos):
+    result = [binary]
+    # enumeration of positions
+    for pos in lpos:
+        tmp = []
+        # enumerate binary in tmp
+        for abin in result:
+            cp0 = abin.copy()
+            cp0[pos] = 0
+            tmp.append(cp0)
+            cp1 = abin.copy()
+            cp1[pos] = 1
+            tmp.append(cp1)
+        # ---
+        result = tmp
+    # --- end for
+    return result
+# --- expand_some
+
 # ----------
 # test binary inclusion
 # lbin1 => lbin2 two Binary
@@ -304,6 +354,58 @@ def is_included_in(lbin1, lbin2):
     return subsumed
 # --- is_included_in
 
+# ------------
+# newc:List[Integer]
+# packets:List[List[Integer]]
+# checks if one list in packets in included in newc
+def has_no_packet(newc, packets):
+    found = True
+    I = 0
+    while (I < len(packets) and found):
+        packet = packets[I]
+        # check one packet
+        J = 0 
+        init = True
+        while (J < len(packet) and init):
+            init = init and (packet[J] in newc)
+            J += 1
+        # --- while J
+        found = not init
+        I += 1
+    # --- while I
+    return found
+# --- has_packet
+
+# --------
+# check if a list of literals from props (a dico) has no duplication 
+# and no both positive and negative atoms
+def correct(literals, props):
+    i = 0
+    result = True
+    while (i < len(literals) and result):
+        lit = literals[i]
+        # check duplication and not a boolref
+        if (lit in literals[i+1:] or not isinstance(lit, BoolRef)):
+                result = False
+        elif (lit in props):
+            if (Not(lit) in literals[i+1:]): # check A and Not(A)
+                result = False
+        elif (lit.decl().kind()  == Z3_OP_NOT):
+            # extract the req 
+            req = lit.children()[0]
+            if (req not in props): # Not(A) but A not in propositions
+                result = False
+            if (req in literals[i+1:]): # or duplicate
+                result = False
+            # --- lit Not(?)
+        else:
+            result = False
+        # --- not in props or ~props
+        i += 1
+    # --- while
+    return result
+# --- correct
+
 # ------------------
 # get list of atoms in AND-term Goal
 def get_list(andgoal):
@@ -317,21 +419,43 @@ def get_list(andgoal):
 # may be us as_expr too
 
 # ----------
-# TODO non plus complexe
-# a solution could be to expand -1 and test is_included_in for each ...
-# TODO calculer sort de diff successfive
-# test binary inclusion of lbin into a List[Binary]
-# all binary have the same length
-# TODO principle A = BA + CA
-# possible en parrallel bit/bit
-# def is_included(lbin, lbins):
-#     # aux to combine bit to bit
-#     #aux = lambda X,Y:  
-#     #size = len(lbin)
-#     for bit in lbin:
-#         for right in lbins:
-#  
-#         # --- end for right
-#     # TODO how to compare ?
-# # --- is_included
+# prod, latoms list of Z3
+# atom Z3 not in prod
+# insert atom in prod but preserve latoms ordering
+# and take care of negated
+def sortit(prod, atom, latoms):
+    #print ("sortit " + str(prod) + "  " + str(atom) + " " + str(latoms))
+    if (len(prod) == 0):
+        return [atom]
+    else:
+        res = []
+        pos = 0
+        for btom in latoms:
+            #print (str(pos))
+            if (pos < len(prod)):
+                inp = prod[pos]
+                if (atom == Not(inp)):
+                    return []
+                elif (inp == Not(atom)):
+                    return []
+                elif (atom == btom):
+                    res.append(atom)
+                elif (btom == inp):
+                    pos += 1
+                    res.append(inp)
+                # ---
+            elif (atom not in res):   # something to add or not
+                res.append(atom)
+            # ---
+        # ---
+        return res
+    # ---
+# --- sortit
+
+# -------------
+# compute the negation of a binary request
+# return a List[] representing a union
+def negate(binary):
+    return [-1 if (bit == -1) else (1 if (bit == 0) else 0) for bit in binary]
+# --- negate
 

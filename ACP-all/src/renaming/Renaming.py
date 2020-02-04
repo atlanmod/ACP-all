@@ -1,11 +1,7 @@
 # ------------------
-# 13/6/2019
+# 20/11/2019
 # parse collect definitions and rewrite the rules
-# unsafe rules are forgotten
 # -------------------
-
-### TODO attention solver_renamed change donc revoir avec enumerate_combine ...
-### no renamed_unsafe
 
 from z3.z3util import * #@UnusedWildImport
 from SimplifySet import * #@UnusedWildImport
@@ -30,20 +26,14 @@ class Renaming(SimplifySet):
         self.counter = 0
         # new rules after renaming
         self.renamed = []
-        # self.renamed_unsafe = []
         # second local solver for renamed rules
         self.solver_renamed = Solver()
-        #self.solver_renamed = SolverFor('LIA') # 
-        #self.solver_renamed = SolverFor('AUFLIA') # 
-        #self.solver_renamed = SolverFor('QF_NIA') # 
-        #self.solver_renamed = SolverFor('QF_UFLIA') # 
-        #self.solver_renamed = SolverFor('QF_UF') # 
-        # (default: 4294967295)
-        #self.solver_renamed.set(timeout =  4294967295) 
-        #self.solver_renamed.set(timeout = 1000000000) 
-        #self.solver_renamed.set(timeout = 1000) 
-        #self.solver_renamed.set(timeout= 0) ### no timeout 
-        #timeout (unsigned int) timeout (in milliseconds) (UINT_MAX and 0 mean no timeout) (default: 4294967295)
+        #self.solver_renamed = SolverFor('QF_LIA') # 
+        #self.solver_renamed.set(timeout = 1000) ### 1s 
+        # aux to count check 
+        self.checking = 0     
+        # to store binary unsafe problems
+        self.unsafe_problems = []        
     # --- end init
         
     # --------------------
@@ -95,9 +85,6 @@ class Renaming(SimplifySet):
         #parse store rules 
         for rule in self.store:
             self.renamed.append(Rule(self.parse(rule.get_cond()), self.parse(rule.get_conc())))
-#         #parse unsafe rules 
-#         for rule in self.unsafe:
-#             self.renamed_unsafe.append(Rule(self.parse(rule.get_cond()), self.parse(rule.get_conc())))            
         # load definitions in Solver
         self.add_definitions_in_solver()
         # self.solver contains the definitions and the renamed rules
@@ -115,20 +102,14 @@ class Renaming(SimplifySet):
             if (not is_const(defi)):
                 self.solver_renamed.add(built_quantified(de == defi, self.variables, True))
     # --- add_definitions_in_solver 
-    
-    # ------------------- TODO not used
-    # add the unsafes in the solver_renamed
-    def add_unsafes_in_solver(self):
-        for rule in self.renamed_unsafe:
-            self.solver_renamed.add(built_quantified(rule.toBoolRef(), self.variables, True)) 
-    # --- add_unsafes_in_solver 
-               
+
     # ---------------
     # simple parsing for conditions and conclusions
     # only the top-level
     # rename internal parts with Tseitin
     # return the renamed expression
     # side effect on self.definitions and self.propositions
+    # Implies is parsed as Or(Not(_[0]), _[1])
     def parse(self, exp):
         #print ("size_nodes " + str(exp) + str(type(exp)) + str(is_int(exp)))
         # may be bad ...
@@ -147,7 +128,10 @@ class Renaming(SimplifySet):
                         res = [self.parse(X) for X in exp.children()]
                         return Or(*res)
                     elif (op == Z3_OP_NOT):
-                        return Not(self.parse(exp.children()[0]))                    
+                        return Not(self.parse(exp.children()[0]))    
+                    elif (op == Z3_OP_IMPLIES): 
+                        return self.parse(Or(Not(exp.children()[0]), exp.children()[1]))  
+                    # TODO  Z3_OP_IFF Z3_OP_XOR and more ...                  
                     else:
                         # renaming
                         return self.add_definition(exp)                 
@@ -182,7 +166,7 @@ class Renaming(SimplifySet):
             elif (op == Z3_OP_NOT):
                 return Not(self.rewrite(exp.children()[0]))             
         else:
-            print ("rewrite louche " + str(exp))
+            print ("wrong expression to rewrite " + str(exp))
     # --- rewrite 
 
     # --------------------
@@ -210,62 +194,72 @@ class Renaming(SimplifySet):
         print("self.definitions => (self.renamed => self.store): " + str(local.check()))
         local.pop()
     # ----check_renamed
-
-    # ---------------
-    # Compute indicator in solver_renamed
-    # D, C are Z3 renamed expressions
-    # Auxiliary only for classify_and_store
-    # without FACT checking
-    # TODO is it correct with def ?
-    # compute indicator of a renamed rule !* (D => C) 
-    # in the context of definitions
-    # TODO ????
-    # obvious: !*rules  & ?*D unsat
-    # tautology/redundancy: !*rules &  ?* (D & ~C) unsat
-    # unsafe: !*rules    !*(D=>C) ?*D unsat
-    def renamed_indicator(self, D, C):
-        #print ("renamed_indicator " + str(self.solver)) # + " \n csys " + str(csys))
-        res = Indicator.NONE
-        #print("1 " + str(self.solver_renamed))
+    
+    # -------------------- 
+    # Check if !*store & ~?request is unsat using renamed rules
+    # renamed is a renamed z3 term
+    # solver_renamed contains definitions and renamed rules
+    # return True if undefined
+    def check_undefined_request(self, renamed):
+        #print ("check_undefined_request " + str(renamed))
+        self.checking += 1 # to see  
         self.solver_renamed.push()
-        # checking obvious
-        if (self.variables):
-            self.solver_renamed.add(Exists(self.variables, D))
-        else:
-            self.solver_renamed.add(D)
-        check = (self.solver_renamed.check() == unsat)
+        # prop as variables 
+        self.solver_renamed.add(built_quantified(renamed, self.variables, False))
+        #print(str(self.solver_renamed))
+        # unknown are considered sat
+        res = self.solver_renamed.check()
+        #print("undefined request " + str(renamed) + " ? " + str(res))        
         self.solver_renamed.pop()
-        if (check):
-            res = Indicator.OBVIOUS
-        else: 
-            # checking tautology
-            #print ("2 " + str(self.solver))
-            self.solver_renamed.push()
-            if (self.variables):
-                self.solver_renamed.add(Exists(self.variables, And(D, Not(C))))
-            else:
-                self.solver_renamed.add(D)
-                self.solver_renamed.add(Not(C))
-            check = (self.solver_renamed.check() == unsat)
-            #print ("RuleSet compute indic " + str(self.solver.check()))
-            self.solver_renamed.pop()
-            if (check):
-                res = Indicator.TAUTOLOGY
-            else: 
-                # checking unsafe
-                #print ("3 " + str(self.solver))
-                self.solver_renamed.push()
-                if (self.variables):
-                    self.solver_renamed.add(ForAll(self.variables, Implies(D, C)))
-                    self.solver_renamed.add(Exists(self.variables, D))
-                else:
-                    self.solver_renamed.add(D)
-                    self.solver_renamed.add(C)
-                check = (self.solver_renamed.check() == unsat)
-                self.solver_renamed.pop()
-                if (check):
-                    res = Indicator.UNSAFE 
-        return res
-    # --- renamed_indicator 
-       
+        if (res == unknown):
+            self.unknown += 1
+            print ("check undefined request unknown: " + str(renamed))     
+        return res == unsat
+    # ----check_undefined_request    
+    
+    # -------------------
+    # check unsat of original request
+    # use a local solver and return True/False
+    def check_unsat_request(self, renamed):
+        self.local_solver.reset()
+        self.local_solver.add(built_quantified(self.rewrite(renamed), self.variables, False))
+        res = self.local_solver.check()
+        if (res == unknown):
+            print ("check unsat request unknown: " + str(self.rewrite(renamed)))        
+        return res == unsat        
+    # --- check_unsat_request
+    
+    # -----------------
+    # Search in renamed rule the explicit unsafe which have a REQ condition
+    # Thus save the list of these unsafe problems as Binary:REQ
+    # REQUIRES: compute_table because of self.REQ
+    def compute_unsafe_problems(self):
+        for rule in self.renamed:
+            if (rule.get_conc() == False):
+                cond = Rule.get_cond(rule).children()
+                # convert the condition in a Binary:REQ
+                res = [-1]*len(self.REQ)
+                I = 0
+                while (I < len(cond) and res != None):
+                    expZ3renamed = cond[I]
+                    # expZ3 renamed is Not() or a proposition
+                    if (is_expr(expZ3renamed) and (expZ3renamed.decl().kind() == Z3_OP_NOT)): 
+                        prop = expZ3renamed.children()[0]
+                        #print("convert_binary Not= " + str(prop))
+                        binary = 0
+                    else:
+                        prop = expZ3renamed
+                        binary = 1
+                    # check if keys[prop] in REQ
+                    #print (str(self.definitions[prop]))
+                    if (prop in self.REQ):
+                        res[self.REQ.index(prop)] = binary 
+                    else:
+                        res = None  
+                    I += 1                                    
+                # --- for
+                if (res != None):
+                    self.unsafe_problems.append(res)
+    # --- compute_unsafe_problems
+    
 # --- end Renaming

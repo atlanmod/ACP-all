@@ -1,5 +1,5 @@
 # ------------------
-# 17/4/2019
+# 4/2/2020
 # Class for normalized rule system
 # That is renamed rules are transformed into a set of AND => OR
 # using some basic tactics from Z3 and a binary conversion to List[1/0/-1]=Binary
@@ -82,7 +82,6 @@ class NormalizedSet(Renaming):
     # ------------------
     # convert a List[Z3prop] into a Binary index reference is self.definitions.keys()
     # return a Binary 
-    # TODO cas 1/0 ?
     def convert_binary(self, andlist):
         #print ("convert_binary for " + str(andlist))
         res = [-1]*len(self.definitions)
@@ -159,7 +158,6 @@ class NormalizedSet(Renaming):
     # andterm is a Binary
     # compute its negation
     # return a dnf:List[Binary]
-    # TODO change it
     def negation_binary(self, andterm):
         size = len(andterm)
         res = []
@@ -282,7 +280,6 @@ class NormalizedSet(Renaming):
     # right:Binary same size
     # AND of two OR Binary and simplify 
     # and produce [] or AND:Binary or CNF:List[Binary] 
-    # TODO more ?
     def compose_2OR_binary(self, left, right):
         #print ("compose_2OR_binary " + str(left) + " " + str(right))
         if (left and right):
@@ -330,7 +327,6 @@ class NormalizedSet(Renaming):
     
     # -------------------
     # convert a binary rule into a DNF
-    # TODO conc = []
     def convert_rule_DNF(self, brule):
         #Binary rule is ANDlist => ORlist
         res = self.negation_binary(Rule.get_cond(brule))

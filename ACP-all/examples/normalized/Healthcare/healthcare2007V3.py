@@ -1,5 +1,5 @@
 # -------------------
-# 21/6/2019
+# 3/2/2019
 # RBAC2 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### without simplification
@@ -16,7 +16,7 @@ from math import * #@UnusedWildImport
 Person = DeclareSort('Person')
 Resource = DeclareSort('Resource')
 
-table = Normalized_enumerate()
+table = Normalized_Enumerate()
 # Variables
 table.add_variable("X", Person)
 table.add_variable("R", Resource)
@@ -249,7 +249,10 @@ table.add_rule(And(LegalAgreement(T, R), Bills(T, R)), False)
 ## -------
 #======================================analysis
 start = process_time()
-size = 10 # 61 #+ 78
+# original version (59)
+#size = 11+24+1+13+10
+### with some disjunction (137)
+size = 11+24+1+13+10 + 6*13
 
 table.compute_table(REQ, size)
 print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
@@ -259,5 +262,5 @@ print (str(table.get_info()))
 table.show_problems()
 #table.check_problems(size)
 
-table.compare_problems(size, REQ)
+#table.compare_problems(REQ, size)
 

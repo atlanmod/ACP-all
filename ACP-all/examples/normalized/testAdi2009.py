@@ -1,5 +1,5 @@
 # -------------------
-# 21/6/2019
+# 4/2/2020
 # Test Adi2009 
 # -------------------
 
@@ -9,7 +9,7 @@ from Normalized_OK import * #@UnusedWildImport
 Patient = DeclareSort('Patient')
 Hospital = DeclareSort('Hospital')
 
-table = Normalized_enumerate()
+table = Normalized_Enumerate()
 # Variables
 table.add_variable("p", Patient)
 table.add_variable("h", Hospital)
@@ -56,4 +56,7 @@ table.show_problems()
 print ("--------- Check undefinedness (=> Not(R))")
 table.check_problems(size)
 print ("--------- Compare both results ")
-#table.compare_problems(size, REQ)
+table.compare_problems(REQ, size)
+
+#### test 
+#print(str(table.check_undefined(Exists([h, p]), And(nurse(h), doctor(h), Not(sameward(h, p))),  size)))

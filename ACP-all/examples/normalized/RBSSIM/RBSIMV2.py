@@ -1,5 +1,5 @@
 # -------------------
-# 21/6/2019
+# 4/2/2020
 # example RBSIM needs predicates not PROP!
 # # # R23
 # table.add_rule(AGE < 67, Not(Retired))
@@ -15,7 +15,7 @@ from math import * #@UnusedWildImport
 Person = DeclareSort('Person')
 #Resource = DeclareSort('Resource')
 
-table = Normalized_enumerate()
+table = Normalized_Enumerate()
 table.add_variable("X", Person) # the person
 # Variables ordered !
 X = table.get_variable(0)
@@ -196,14 +196,16 @@ table.add_rule(And(Not(Fund(X)), Not(Loan(X)), Not(Scholarship(X))), Not(CEAF(X)
 ### -------- analysis 
 #======================================analysis
 start = process_time()
-size = 10 # 
+size = 36 # 
+### with some explicit unsafe !REQ
+#size = 57  # 36 + 21
 
 table.compute_table(REQ, size)
 print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
   
 #print (str(table))
-print (str(table.get_info()))
+#print (str(table.get_info()))
 # table.show_problems()
 # table.check_problems(size)
 
-table.compare_problems(size, REQ)
+#table.compare_problems(REQ, size)

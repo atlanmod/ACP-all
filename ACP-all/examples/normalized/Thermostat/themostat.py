@@ -1,5 +1,5 @@
 # -------------------
-# 21/6/2019
+# 4/2/2020
 ## inpired from termostat control system in
 # Logical Foundations for Rule-Based Systems De Antoni Ligeza
 # or in papers from G. Nalepa
@@ -13,7 +13,7 @@ Weather = DeclareSort('Weather')
 Season = DeclareSort('Season')
 Month = DeclareSort('Month')
 
-table = Normalized_enumerate()
+table = Normalized_Enumerate()
 # Variables
 table.add_variable("X", Day)
 X = table.get_variable(0)
@@ -119,7 +119,7 @@ table.add_rule(And(month(X, october), month(X, november)), False)
 
 ### -------- analysis 
 start = process_time()
-size = 18 + 21 + 18 
+size = 18 
 #size =  18 + 21 + 18 # = 57
 REQ = [(9 <= time(X)), (time(X) < 17), (0 <= time(X)), (time(X) < 9), (17 <= time(X)), (time(X) < 24),
     monday(X), tuesday(X), wednesday(X), thursday(X), friday(X), saturday(X), sunday(X),
@@ -141,4 +141,4 @@ table.show_problems()
 ### eliminated by the initial_problems
 ### and time is really smaller
 
-#table.compare_problems(size, REQ)
+#table.compare_problems(REQ, size)

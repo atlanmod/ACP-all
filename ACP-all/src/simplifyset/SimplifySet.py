@@ -89,7 +89,6 @@ class SimplifySet(RuleSet):
     # --------------------------
     # check equivalence of two z3 BoolRef with free variables
     # use a new solver to be more flexible
-    # TODO quantifiers not need for prop
     def check(self, rules1, rules2):
         #print ("SimplifySet.check " + str(rules1) + " " +str(rules2))
         # rules1 and Not(rules2) 
@@ -117,7 +116,6 @@ class SimplifySet(RuleSet):
     # --------------------------
     # check the validity of the transformation
     # self.rules <=> self.store # and self.unsafe
-    # TODO case bool to SEE
     def check_simplified(self, end):
         # normalized and Not(exclusive) 
         z3rules = self.toBoolRef(self.rules, end)

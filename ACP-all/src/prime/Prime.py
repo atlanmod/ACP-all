@@ -184,5 +184,4 @@ def prime(lmins):
     return iterate
 # --- end prime
 
-### ================= try a combine_one new binary ???
 

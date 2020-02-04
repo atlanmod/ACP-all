@@ -1,5 +1,5 @@
 # -------------------
-# 21/6/2019
+# 3/2/2020
 # RBAC1 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### part only for Employees
@@ -149,34 +149,34 @@ table.add_rule(And(President(T, X), Provost(T, Y), revoke(T, X, Y)), Not(Provost
 table.add_rule(And(Provost(T, X), Dean(T, Y), revoke(T, X, Y)), Not(Dean(succ(T), Y))) #
 # --------
 
-### ------------------ resources exclusivity (7*3 = 21)
-table.add_rule(And(CollegeAcct(T, R), Roster(T, R)), False)
-table.add_rule(And(CollegeAcct(T, R), DeptBudget(T, R)), False)
-table.add_rule(And(CollegeAcct(T, R), DeptAcct(T, R)), False)
-table.add_rule(And(CollegeAcct(T, R), EmployeeParkingPermit(T, R)), False) 
-table.add_rule(And(CollegeAcct(T, R), EmployeeHealthInsur(T, R)), False)
-table.add_rule(And(CollegeAcct(T, R), UniversityAcct(T, R)), False)
-
-table.add_rule(And(Roster(T, R), DeptBudget(T, R)), False)
-table.add_rule(And(Roster(T, R), DeptAcct(T, R)), False)
-table.add_rule(And(Roster(T, R), EmployeeParkingPermit(T, R)), False) 
-table.add_rule(And(Roster(T, R), EmployeeHealthInsur(T, R)), False)
-table.add_rule(And(Roster(T, R), UniversityAcct(T, R)), False)
-
-table.add_rule(And(DeptBudget(T, R), DeptAcct(T, R)), False)
-table.add_rule(And(DeptBudget(T, R), EmployeeParkingPermit(T, R)), False) 
-table.add_rule(And(DeptBudget(T, R), EmployeeHealthInsur(T, R)), False)
-table.add_rule(And(DeptBudget(T, R), UniversityAcct(T, R)), False)
-
-table.add_rule(And(DeptAcct(T, R), EmployeeParkingPermit(T, R)), False) 
-table.add_rule(And(DeptAcct(T, R), EmployeeHealthInsur(T, R)), False)
-table.add_rule(And(DeptAcct(T, R), UniversityAcct(T, R)), False)
-
-table.add_rule(And(EmployeeParkingPermit(T, R), EmployeeHealthInsur(T, R)), False)
-table.add_rule(And(EmployeeParkingPermit(T, R), UniversityAcct(T, R)), False)
-
-table.add_rule(And(EmployeeHealthInsur(T, R), UniversityAcct(T, R)), False)
-# --------
+# ### ------------------ resources exclusivity (7*3 = 21)
+# table.add_rule(And(CollegeAcct(T, R), Roster(T, R)), False)
+# table.add_rule(And(CollegeAcct(T, R), DeptBudget(T, R)), False)
+# table.add_rule(And(CollegeAcct(T, R), DeptAcct(T, R)), False)
+# table.add_rule(And(CollegeAcct(T, R), EmployeeParkingPermit(T, R)), False) 
+# table.add_rule(And(CollegeAcct(T, R), EmployeeHealthInsur(T, R)), False)
+# table.add_rule(And(CollegeAcct(T, R), UniversityAcct(T, R)), False)
+# 
+# table.add_rule(And(Roster(T, R), DeptBudget(T, R)), False)
+# table.add_rule(And(Roster(T, R), DeptAcct(T, R)), False)
+# table.add_rule(And(Roster(T, R), EmployeeParkingPermit(T, R)), False) 
+# table.add_rule(And(Roster(T, R), EmployeeHealthInsur(T, R)), False)
+# table.add_rule(And(Roster(T, R), UniversityAcct(T, R)), False)
+# 
+# table.add_rule(And(DeptBudget(T, R), DeptAcct(T, R)), False)
+# table.add_rule(And(DeptBudget(T, R), EmployeeParkingPermit(T, R)), False) 
+# table.add_rule(And(DeptBudget(T, R), EmployeeHealthInsur(T, R)), False)
+# table.add_rule(And(DeptBudget(T, R), UniversityAcct(T, R)), False)
+# 
+# table.add_rule(And(DeptAcct(T, R), EmployeeParkingPermit(T, R)), False) 
+# table.add_rule(And(DeptAcct(T, R), EmployeeHealthInsur(T, R)), False)
+# table.add_rule(And(DeptAcct(T, R), UniversityAcct(T, R)), False)
+# 
+# table.add_rule(And(EmployeeParkingPermit(T, R), EmployeeHealthInsur(T, R)), False)
+# table.add_rule(And(EmployeeParkingPermit(T, R), UniversityAcct(T, R)), False)
+# 
+# table.add_rule(And(EmployeeHealthInsur(T, R), UniversityAcct(T, R)), False)
+# # --------
       
 #======================================analysis
 # #### analysis ----------------
@@ -194,4 +194,4 @@ table.add_rule(And(EmployeeHealthInsur(T, R), UniversityAcct(T, R)), False)
 # table.show_problems()
 # #table.check_problems(size)
 
-#table.compare_problems(size, REQ)
+#table.compare_problems(REQ, size)

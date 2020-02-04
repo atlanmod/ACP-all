@@ -1,5 +1,5 @@
 # ------------------
-# 20/6/2019
+# 4/2/2020
 # parse collect definitions and rewrite the rules
 # -------------------
 
@@ -53,7 +53,7 @@ class Enumerate(Renaming):
     #------------------
     # initialize renamed system and choose list of propositions for requests
     # here lreq is a list of syntactic expression to catch
-    def initialize(self, size, lreq):
+    def initialize(self, lreq, size):
         self.classify(size)
         #self.check_simplified(size)
         #print (str(self.get_info()))

@@ -1,5 +1,5 @@
 # -------------------
-# 21/6/2019
+# 4/2/2020
 # RBAC2 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### without simplification
@@ -9,6 +9,8 @@
 # -----------------
 
 from Normalized_OK import * #@UnusedWildImport
+#from Enumerate import * #@UnusedWildImport
+
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
 
@@ -17,7 +19,8 @@ Person = DeclareSort('Person')
 Resource = DeclareSort('Resource')
 Time = DeclareSort('Time')
 
-table = Normalized_enumerate()
+table = Normalized_Enumerate()
+#table = Enumerate()
 # Variables
 table.add_variable("X", Person)
 table.add_variable("R", Resource)
@@ -76,9 +79,11 @@ assign = Function('assign',  Time, Person, Person, BoolSort())
 ### revoke
 revoke = Function('revoke',  Time, Person, Person, BoolSort()) 
 
-##  ThirdParties ? 
+## TODO doit manquer des choses Agent ? ThirdParties ? T et
+### T+1 ? not sure in conclusion
 REQ= [Nurse(T, X), Doctor(T, X), Receptionist(T, X), MedicalManager(T, X), Manager(T, X), Patient(T, X), PrimaryDoctor(T, X), \
-                            OldMedicalRecords(T, R), RecentMedicalRecords(T, R), PrivateNotes(T, R), Prescriptions(T, R), PatientPersonalInfo(T, R), \
+                            OldMedicalRecords(T, R), RecentMedicalRecords(T, R), PrivateNotes(T, R), Prescriptions(T, R), \
+                            PatientPersonalInfo(T, R), \
                             PatientFinancialInfo(T, R), PatientMedicalInfo(T, R), CarePlan(T, R), Appointment(T, R), ProgressNotes(T, R), \
                             MedicalRecordsWithThirdPartyInfo(T, R), LegalAgreement(T, R), Bills(T, R), 
                             assign(T, X, Y), revoke(T, X, Y)]
@@ -98,6 +103,7 @@ table.add_rule(And(Patient(T, X), PrimaryDoctor(T, X)), False) #
 table.add_rule(And(Receptionist(T, X), Doctor(T, X)), False) #
 table.add_rule(And(Nurse(T, X), Doctor(T, X)), False) #10
 ### ---- 
+#table.add_rule(MedicalManager(T, X), Manager(T, X))
 
 # ---------------------permission assignement  (24)
 table.add_rule(And(Doctor(T, X),  OldMedicalRecords(T, R)), view(T, X, R))
@@ -178,7 +184,7 @@ table.add_rule(And(Manager(T, X), MedicalTeam(T, Y), revoke(T, X, Y)), Not(Medic
 table.add_rule(And(Doctor(T, X), Not(Receptionist(T, X)), Patient(T, Y), revoke(T, X, Y)), Not(Patient(succ(T), Y))) #
 # # --------------------------------------------
 
-### ------------------------- (12+) relation on resources ? (6*13)
+### ------------------------- (12+) relation on resources (6*13)
 table.add_rule(And(OldMedicalRecords(T, R), RecentMedicalRecords(T, R)), False)
 table.add_rule(And(OldMedicalRecords(T, R), PrivateNotes(T, R)), False)
 table.add_rule(And(OldMedicalRecords(T, R), Prescriptions(T, R)), False)
@@ -272,18 +278,18 @@ table.add_rule(And(LegalAgreement(T, R), Bills(T, R)), False)
    
 #======================================analysis
 start = process_time()
-size = 10 # 11+24+1+13+10 + 6*13
-#11+24+1+13+10
-# 11+24+1+13+12
-# 11+24+1+13 #+10
+# original version (59)
+size = 11+24+1+13+10
+### with some disjunction (137)
+#size = 11+24+1+13+10 + 6*13
 
 table.compute_table(REQ, size)
-print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
-    
-#print (str(table))
-print (str(table.get_info()))
-table.show_problems()
+# print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
+#     
+# #print (str(table))
+# print (str(table.get_info()))
+# table.show_problems()
 table.check_problems(size)
-
-table.compare_problems(size, REQ)
+# 
+# #table.compare_problems(REQ, size)
 

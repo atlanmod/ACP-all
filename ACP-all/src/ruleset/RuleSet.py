@@ -1,9 +1,7 @@
 # ------------------
-# 29/3/2019
+# 4/2/2020
 # Class for rule system
 # -------------------
-
-### TODO clean useless methods
 
 from z3 import * #@UnusedWildImport
 from Rule import * #@UnusedWildImport
@@ -216,7 +214,6 @@ class RuleSet():
     
     # --------------------
     # test unsafeness with free variables !*(D=>C) ?*D is unsat
-    # TODO number is the rule numbering, if == -1 local check
     # Global check agaist rules in the solver and !* csys & !*(D=>C) ?*D unsat
     def is_unsafe_bis(self, csys, cond, conc):
         self.solver.push()
