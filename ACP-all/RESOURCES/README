@@ -10,8 +10,6 @@ This was done with Eclipse and plugin pydev (https://www.pydev.org/)
     Z3py (pip3 install z3-solver==4.8.5.0)
     (from  https://pypi.org/project/z3-solver/)
     
-### TODO pn maj ? Normalized_OK    
- 
 ========== How to use
 
 SEE examples/enumerate/testAdi2009.py 
