@@ -144,7 +144,7 @@ class Normalized_Enumerate(NormalizedSet):
         # --------
         # computed allowed binary
         self.allowed = product(allowed, allred) # define the branching Binary:REQ space to explore
-        self.allowed = minimizing(self.allowed) # critical minimization
+        #NO MINIMIZATION
         print("allowed REQ space: " + str(len(self.allowed)) + " / " + str(self.allowed))      
         allred = self.allowed 
         # -------
@@ -186,7 +186,8 @@ class Normalized_Enumerate(NormalizedSet):
                         if (all([not is_included_in(common, X) for X in self.normalized_problems + newpbs])):
                             renamed = self.reverse_binary_req_renamed(common)
                             if (self.check_undefined_request(renamed)):
-                                #print (" found problem " + str(self.reverse_binary_req(utile)))
+                                #print("self.normalized_problems + newpbs " + str(self.normalized_problems + newpbs))
+                                #print (str(common) + " found problem \n" + str(self.rewrite(renamed)))
                                 newpbs.append(common)
                             elif (maxi):  # only defined not need to continue 
                                 allseen.append(common)     
@@ -207,11 +208,13 @@ class Normalized_Enumerate(NormalizedSet):
             combinations = newcombi
             elements = newelts
             self.final_clean(level, newpbs)
-            ### heuristic no new problem
-            if (not newpbs) and (not self.Hresult) and self.normalized_problems: # compute heuristic
+            ### heuristic no new problem old test
+            #if (not newpbs) and (not self.Hresult) and self.normalized_problems
+            print("measures " + str(measure(self.Hresult)) + " =?= " + str(measure(self.normalized_problems)))
+            if (len(self.Hresult) == len(self.normalized_problems)): # compute heuristic
                 heuristic = True
                 print ("Heuristic says sufficient level is " + str(level))
-                self.Hresult = self.normalized_problems 
+                #self.Hresult = self.normalized_problems 
             print("end #level= " + str(level) + " #problems here " + str(len(self.normalized_problems)) + " time = " + str(floor(process_time()-self.start)))
             print()                         
             level += 1
@@ -293,6 +296,7 @@ class Normalized_Enumerate(NormalizedSet):
     # final cleaning: remove unsat and move initial problems
     def final_clean(self, level, newpbs):
         # add as problems and simplify
+        self.Hresult = self.normalized_problems.copy() # To store it and check change
         self.normalized_problems.extend(newpbs)
         self.normalized_problems = minimizing(self.normalized_problems)
         # display the new ones found at this level

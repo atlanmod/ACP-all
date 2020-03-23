@@ -2,8 +2,11 @@
 change prime with pyeda better performances and minimum
 but deactivate it after tactic since too costly
 add allowed computation 
-
+Change heuristic with length, but also measure
 * TODO ===================
+
+improve heuristic if non several time ?
+if newpbs included in known after simplif ?
 
 %%%% 4/2/2020
 

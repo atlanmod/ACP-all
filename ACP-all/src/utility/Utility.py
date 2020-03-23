@@ -19,6 +19,13 @@ DNF = Then(CNF, SIMPLIFY, Repeat(OrElse(Then(SIMPLIFY, SPLIT), SKIP)))
 COUNTER_VARS = 0
 
 # -----------------------
+# TODO compute the number of defined bits in a List[Binary]
+def measure(lbin):
+    return sum([sum([1 for B in BIN if B != -1]) for BIN in lbin])
+# --- renaming
+
+
+# -----------------------
 # Rename the variables of this expression
 # Returns a list of Const() and the new expression
 def renaming(Z3exp):
@@ -426,7 +433,7 @@ def expand_some(binary, lpos):
 
 # ----------
 # test binary inclusion
-# lbin1 => lbin2 two Binary
+# lbin1 => lbin2 two Binary of same length
 # check if bits 1/0 of lbin1 are 1/0/-1 in lbin2
 def is_included_in(lbin1, lbin2):
     subsumed = True
