@@ -7,7 +7,6 @@ from Utility import * #@UnusedWildImport
 from Renaming import * #@UnusedWildImport
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
-from Prime import * #@UnusedWildImport
 
 # --------------------------
 # Class for Table inheriting rule set 

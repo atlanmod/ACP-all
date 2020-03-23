@@ -1,5 +1,5 @@
 # -------------------
-# 4/2/2020
+# 23/3/2020
 # RBAC1 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### Student part only 
@@ -16,6 +16,7 @@ Resource = DeclareSort('Resource')
 Time = DeclareSort('Time')
 
 table = Normalized_Enumerate()
+#table = Enumerate()
 # Variables
 table.add_variable("X", Person)
 table.add_variable("R", Resource)

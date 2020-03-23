@@ -1,5 +1,5 @@
 # -------------------
-# 4/2/2020
+# 23/3/2020
 # Test Adi2009 
 # -------------------
 
@@ -39,24 +39,31 @@ table.add_rule(chief(h), pread(h, p)) #4
 #### ---------------
 
 #  =================== Problems ================ 
-# 
 # And(nurse(h), doctor(h), Not(sameward(h, p)))
-# And(nurse(h), Not(doctor(h)), Not(sameward(h, p)), chief(h))
+# And(nurse(h), Not(sameward(h, p)), chief(h))
 
 ### -------- analysis 
 size = 5
 REQ = [nurse(h), doctor(h), sameward(h, p), chief(h)]
+ALLOWED = [[-1]*len(REQ)]
 
-table.compute_table(REQ, size)
+# table.classify(size)
+# table.check_simplified(size)
+# table.parse_rules()
+# table.check_renamed()
+# table.normalize()
+# table.compute_dnf()
+
+table.compute_table(REQ, size, ALLOWED)
   
-print (str(table))
-print (str(table.get_info()))
-print ("--------- Show problems")
+#print (str(table))
+#print (str(table.get_info()))
+#table.show()
+#print(str(table.normalized_problems))
 table.show_problems()
-print ("--------- Check undefinedness (=> Not(R))")
-table.check_problems(size)
-print ("--------- Compare both results ")
-table.compare_problems(REQ, size)
+#table.classify_problems()
+#table.check_problems(size)
 
-#### test 
-#print(str(table.check_undefined(Exists([h, p]), And(nurse(h), doctor(h), Not(sameward(h, p))),  size)))
+#### tests ======================
+#print(str(product([[-1, -1, -1]], [[1, 0, 1], [-1, 0, 1]])))
+

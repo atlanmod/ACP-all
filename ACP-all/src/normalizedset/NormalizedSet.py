@@ -9,7 +9,6 @@
 
 from Renaming import * #@UnusedWildImport
 from BinaryRule import * #@UnusedWildImport
-from Prime import  * #@UnusedWildImport
 
 # ---------------------
 class NormalizedSet(Renaming):

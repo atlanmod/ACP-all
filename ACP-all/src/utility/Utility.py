@@ -1,11 +1,11 @@
 # ------------------------------
-# 23/1/2020
+# 23/3/2020
 # some additional utility functions
 #--------------------------
 
 from z3 import * #@UnusedWildImport
 from z3.z3util import * #@UnusedWildImport
-#from quine import * #@UnusedWildImport
+from PLA import * #@UnusedWildImport
 
 #------------- TACTIC from Z3
 SKIP = Tactic('skip')
@@ -51,6 +51,19 @@ def undefined(abin):
 def req_reduce(X, Y):
     return [X[I] for I in range(len(Y)) if (Y[I] == 1)]   
 # --- req_reduce
+
+# -----------------------
+# test if a Binary is !REQ or :REQ
+# second argument is REQB
+# return True if :REQ
+def is_REQ(binary, reqb):
+    I = 0
+    finish = False
+    while (I < len(binary) and not finish):
+        finish = (reqb[I] == 0) and (binary[I] != -1) 
+        I += 1
+    return ((I == len(binary)) and not finish)
+# --- is_REQ
 
 # -----------------------
 # deep equal for two List[Binary] without repetition
@@ -156,6 +169,27 @@ def make_and(left, right):
     return [] if finish else res
 # --- make_and
 
+# -----------------
+# Check if all left bits [1/0] are compatible
+# with the Binary in right
+# return true or false
+def compare_bits(left, right):
+    return all([(right[I] == -1) or (left[I] == right[I])  for I in range(len(left)) if left[I] != -1])
+# --- compare_bits
+
+# -----------------
+# Compose using make_and the Binary in the two lists
+# return a List[Binary] (intersect) or [] (is in negation)
+def product(lefts, rights):
+    res = []
+    for bleft in lefts:
+        for bright in rights:
+            tmp = make_and(bleft, bright)
+            if (tmp):
+                res.append(tmp)
+    return res
+# --- product
+
 # -------------
 # compute base binary of binaries in lbinary
 # return a Binary or [] if unsat
@@ -208,7 +242,7 @@ def estimate_1(nbreq, lbinary):
 # --- estimate_1
 
 # ----------------------
-# estimate MAX bound of base size
+# TODO estimate MAX bound of base size
 # complete all combinations and forget unsat
 # and measure 
 # nbreq size of atoms
@@ -252,6 +286,57 @@ def estimate(nbreq, lbinaryreq, lasts, allreq):
     return res    
 # --- estimate
 
+# # -----------------
+# # combined and check exclusivity of two List[1/0]
+# # return the union of the combinations and True if exclusive
+# def make_combine(left, right):
+#     #print ("make_common " + str(left) + " / " + str(right))
+#     size = len(left)
+#     res = [0]*size
+#     I = 0
+#     finish = True
+#     while (I < size):
+#         if ((left[I] == 1) and (right[I] == 1)):
+#             finish = False
+#             res[I] = 1
+#         elif (left[I] == 0):
+#             res[I] = right[I]
+#         elif (right[I] == 0):
+#             res[I] = left[I]
+#         I += 1
+#     #print("make_common= " + str([] if finish else res))
+#     return (res, finish)
+# # --- make_common
+
+# # -----------------
+# # compare two binary and compute "base" bits
+# # left, right are two binarys
+# # mask is a REQB binary, all with same length
+# # return a base binary or [] if fails
+# # and maximal indicator
+# def make_common(left, right, mask):
+#     #print ("make_common " + str(left) + " / " + str(right))
+#     res = [-1]*len(mask)
+#     i = 0
+#     finish = False
+#     maximal = True
+#     while (i < len(mask)) and not finish:
+#         # only for REQ==1
+#         if (mask[i] == 1):
+#             if (left[i] == right[i]):
+#                 res[i] = left[i] 
+#                 if (res[i] == -1):
+#                     maximal = False
+#             elif  ((left[i] == -1) or (right[i] == -1)):
+#                 res[i] = -(left[i] * right[i])
+#             else: # 1!=0
+#                 finish = True
+#         # --- if mask
+#         i += 1
+#     #print("make_common= " + str([] if finish else res))
+#     #return ([] if finish else res)
+#     return (([], False) if finish else (res, maximal))
+# # --- make_common
 
 # ----------------
 # extract part to simplify and  don't forget duplication
@@ -319,6 +404,7 @@ def expand(binary):
 #----------------------
 # expand some don't care positions  in a binary
 # and return a copy list of binary
+# TODO version construction rather than copy as above ?
 def expand_some(binary, lpos):
     result = [binary]
     # enumeration of positions
@@ -354,10 +440,19 @@ def is_included_in(lbin1, lbin2):
     return subsumed
 # --- is_included_in
 
+# ----------
+# test if one List[Binary] of lbin1  is in other:List[Binary]
+# lbin:List[List[Binary]]
+# other:List[Binary]
+def is_in(lbin, other):
+    return any([all([B in other for B in LBIN]) for LBIN in lbin])
+# --- is_in
+
 # ------------
 # newc:List[Integer]
 # packets:List[List[Integer]]
 # checks if one list in packets in included in newc
+# TODO packet/newc are sorted may be useful
 def has_no_packet(newc, packets):
     found = True
     I = 0
@@ -458,4 +553,91 @@ def sortit(prod, atom, latoms):
 def negate(binary):
     return [-1 if (bit == -1) else (1 if (bit == 0) else 0) for bit in binary]
 # --- negate
+
+# -------------
+# compute the complement of a Binary AND term
+# Thus return a List[Binary] representing a DNF
+def complement(binary):
+    size = len(binary)
+    tmp = []
+    for I in range(size):
+        if (binary[I] == 0):
+            req = [-1]*size
+            req[I] = 1
+            tmp.append(req)
+        elif (binary[I] == 1):
+            req = [-1]*size
+            req[I] = 0
+            tmp.append(req)
+    # ---
+    return tmp
+# --- complement
+
+# -------------
+# hashes a list of binary by converting into tuple 
+# TODO but ordering of Binary ???
+def hashing(lbinary):
+    return hash(tuple([tuple(B) for B in lbinary]))
+# --- hashing
+
+# -------------
+# compute the REQ position occuring in the List[Binary]
+def compute_positions(lbinary, REQB):
+    return list(set().union(*[set([P for P in range(len(REQB)) if (REQB[P] == 1 and B[P] != -1)]) for B in lbinary]))
+# --- compute_positions
+
+# -------------
+# generate allowed requests which are sat
+# lpos_combi: a list of tuple (list of positions, list of combinations)
+def gener_allowed(lpos_combi, NBREQ):
+    res = [[-1]*NBREQ]
+    for (lpos, lcombi) in lpos_combi:
+        tmp = []        
+        for request in res:
+            # apply the combinaison to positions
+            for combi in lcombi:
+                req = request.copy()
+                for pos in lpos:
+                    # offset between both lists
+                    req[pos] = combi[lpos.index(pos)]
+                tmp.append(req)
+            # --- compute new requests
+        # --- request
+        res = tmp
+    # --- lpos_combi
+    return res
+# --- gener_allowed
+
+# -------------
+# generate allowed requests which are sat
+# assumes definitions ordering of REQ 
+# conflicts is a list of Binary:REQ defining prohibited binaries 
+# it represents  DNF of the denied binary 
+def gener_allowed2(conflicts, NBREQ):
+    if (conflicts):
+        tmp = complement(conflicts[0])
+        if (len(conflicts) > 1):
+            for conf in conflicts[1:]:
+                tmp = minimizing(product(tmp, complement(conf)))
+                #prime(tmp)
+            # ---
+        return tmp
+    else:
+        return [[-1]*NBREQ]
+# --- gener_allowed2
+
+# -------------
+# generate binary conflicts from exclusive positions
+# conflicts: a list of pair of positions
+# pair: a couple of bits
+def gener_exclusive(conflicts, NBREQ, pair):
+    tmp =  []
+    for (P, Q) in conflicts:
+        binary = [-1]*NBREQ
+        binary[P] = pair[0]
+        binary[Q] = pair[1]
+        tmp.append(binary)
+    return tmp
+# --- gener_exclusive
+
 

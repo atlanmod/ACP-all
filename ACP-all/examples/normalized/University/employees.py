@@ -1,5 +1,5 @@
 # -------------------
-# 3/2/2020
+# 23/3/2020
 # RBAC1 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### part only for Employees
@@ -8,16 +8,6 @@
 # -----------------
 
 from employees_declarations import * #@UnusedWildImport
-
-##      # roles 
-REQ_employees = [Staff(T, X), Employee(T, X), AdmissionsOfficer(T, X), DeanOfAdmissions(T, X), Provost(T, X), 
-      Faculty(T, X), Lecturer(T, X), AssistantProf(T, X), AssociateProf(T, X), Professor(T, X),
-      DeptChair(T, X), Dean(T, X), Provost(T, X), President(T, X), # TenuredFac(T, X) no
-      FacilitiesDirector(T,X), FacilitiesCommittee(T, X), QualExamCommitteeHead(T,X), QualExamCommittee(T, X),
-      # resources (7)
-      CollegeAcct(T, R), Roster(T, R), DeptBudget(T, R), DeptAcct(T, R), EmployeeParkingPermit(T, R), 
-      EmployeeHealthInsur(T, R), UniversityAcct(T, R)
-      ]
 
 ##### the rules -------------
 ### ---------------------------------------------- roles (17-1)
@@ -149,49 +139,36 @@ table.add_rule(And(President(T, X), Provost(T, Y), revoke(T, X, Y)), Not(Provost
 table.add_rule(And(Provost(T, X), Dean(T, Y), revoke(T, X, Y)), Not(Dean(succ(T), Y))) #
 # --------
 
-# ### ------------------ resources exclusivity (7*3 = 21)
-# table.add_rule(And(CollegeAcct(T, R), Roster(T, R)), False)
-# table.add_rule(And(CollegeAcct(T, R), DeptBudget(T, R)), False)
-# table.add_rule(And(CollegeAcct(T, R), DeptAcct(T, R)), False)
-# table.add_rule(And(CollegeAcct(T, R), EmployeeParkingPermit(T, R)), False) 
-# table.add_rule(And(CollegeAcct(T, R), EmployeeHealthInsur(T, R)), False)
-# table.add_rule(And(CollegeAcct(T, R), UniversityAcct(T, R)), False)
-# 
-# table.add_rule(And(Roster(T, R), DeptBudget(T, R)), False)
-# table.add_rule(And(Roster(T, R), DeptAcct(T, R)), False)
-# table.add_rule(And(Roster(T, R), EmployeeParkingPermit(T, R)), False) 
-# table.add_rule(And(Roster(T, R), EmployeeHealthInsur(T, R)), False)
-# table.add_rule(And(Roster(T, R), UniversityAcct(T, R)), False)
-# 
-# table.add_rule(And(DeptBudget(T, R), DeptAcct(T, R)), False)
-# table.add_rule(And(DeptBudget(T, R), EmployeeParkingPermit(T, R)), False) 
-# table.add_rule(And(DeptBudget(T, R), EmployeeHealthInsur(T, R)), False)
-# table.add_rule(And(DeptBudget(T, R), UniversityAcct(T, R)), False)
-# 
-# table.add_rule(And(DeptAcct(T, R), EmployeeParkingPermit(T, R)), False) 
-# table.add_rule(And(DeptAcct(T, R), EmployeeHealthInsur(T, R)), False)
-# table.add_rule(And(DeptAcct(T, R), UniversityAcct(T, R)), False)
-# 
-# table.add_rule(And(EmployeeParkingPermit(T, R), EmployeeHealthInsur(T, R)), False)
-# table.add_rule(And(EmployeeParkingPermit(T, R), UniversityAcct(T, R)), False)
-# 
-# table.add_rule(And(EmployeeHealthInsur(T, R), UniversityAcct(T, R)), False)
-# # --------
-      
-#======================================analysis
-# #### analysis ----------------
-# start = process_time()
-# # employees:  17+3 roles + 1 SMER +  16 permissions + 1 +  19 administrative + 19 revoke (75 rules)
-# ### 3 redundant rules
-# # employees:  16+3 roles + 1 SMER +  16 permissions + 1 +  19 administrative + 14 revoke (70 rules)
-# ### + 21 explicit unsafe
-# size =  16+3+1+16+ 1 + 19+14 +21
-#  
-# table.compute_table(REQ_employees, size)
-# print ("size = " + str(size) + " time = " + str(floor(process_time()-start)))
-# #print (str(table))
-# print (str(table.get_info()))
-# table.show_problems()
-# #table.check_problems(size)
+Distinct(CollegeAcct(T, R), Roster(T, R), DeptBudget(T, R), DeptAcct(T, R), EmployeeParkingPermit(T, R), EmployeeHealthInsur(T, R), UniversityAcct(T, R))
 
-#table.compare_problems(REQ, size)
+# # ##      # roles 
+# REQ_employees = [Staff(T, X), Employee(T, X), AdmissionsOfficer(T, X), DeanOfAdmissions(T, X), Provost(T, X), 
+#       Faculty(T, X), Lecturer(T, X), AssistantProf(T, X), AssociateProf(T, X), Professor(T, X),
+#       DeptChair(T, X), Dean(T, X), President(T, X), 
+#       FacilitiesDirector(T,X), FacilitiesCommittee(T, X), QualExamCommitteeHead(T,X), QualExamCommittee(T, X),
+#       # resources (7)
+#       CollegeAcct(T, R), Roster(T, R), DeptBudget(T, R), DeptAcct(T, R), EmployeeParkingPermit(T, R), 
+#       EmployeeHealthInsur(T, R), UniversityAcct(T, R)
+#       ]
+# 
+# ALLOWED = [[-1]*len(REQ_employees)]
+# NOTRELREQ = []      
+# # #======================================analysis
+# # #### analysis ----------------
+# # start = process_time()
+# # # employees:  17+3 roles + 1 SMER +  16 permissions + 1 +  19 administrative + 19 revoke (75 rules)
+# # ### 3 redundant rules
+# # # employees:  16+3 roles + 1 SMER +  16 permissions + 1 +  19 administrative + 14 revoke (70 rules)
+# size =  16+3+1+16+ 1 + 19+14 
+# #   
+# table.compute_table(REQ_employees, size, ALLOWED, NOTRELREQ)
+# 
+# # TODO coince apres TACTIC ???
+# 
+# # print ("size = " + str(size) + " time = " + str(floor(process_time()-start)))
+# # # #print (str(table))
+# # # print (str(table.get_info()))
+# # # table.show_problems()
+# # # #table.check_problems(size)
+# # 
+# # #table.compare_problems(size, REQ)

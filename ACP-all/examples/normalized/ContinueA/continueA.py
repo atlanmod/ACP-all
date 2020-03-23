@@ -1,5 +1,5 @@
 # -------------------
-# 4/2/2020
+# 23/3/2020
 # CONTINUE A from test.tspass
 # -------------------
 
@@ -257,13 +257,14 @@ table.add_rule(And(PaperReviewInfo(R), PaperReviewInfoSubmission(R)), False)
 table.add_rule(And(PaperReviewContent(R), PaperReviewInfoSubmission(R)), False)
 # ------------
 
+ALLOWED = [[-1]*len(REQ)]
 #### analysis ----------------
 start = process_time()
 size = 47 # without
 #### with few explicit unsafe representing disjunction
 #size = 167 # 47+ 120 
 
-table.compute_table(REQ, size)
+table.compute_table(REQ, size, ALLOWED)
 # print ("size = " + str(size) + " time = " + str(floor(process_time()-start)))
 # #print (str(table))
 # print (str(table.get_info()))

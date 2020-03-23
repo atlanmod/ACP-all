@@ -1,5 +1,5 @@
 # -------------------
-# 4/2/2020
+# 23/3/2020
 ## inpired from termostat control system in
 # Logical Foundations for Rule-Based Systems De Antoni Ligeza
 # or in papers from G. Nalepa
@@ -121,14 +121,25 @@ table.add_rule(And(month(X, october), month(X, november)), False)
 start = process_time()
 size = 18 
 #size =  18 + 21 + 18 # = 57
-REQ = [(9 <= time(X)), (time(X) < 17), (0 <= time(X)), (time(X) < 9), (17 <= time(X)), (time(X) < 24),
-    monday(X), tuesday(X), wednesday(X), thursday(X), friday(X), saturday(X), sunday(X),
-       month(X, january), month(X, february), month(X, march), month(X, april), month(X, may),
+
+REQ = [monday(X), tuesday(X), wednesday(X), thursday(X), friday(X), saturday(X), sunday(X), #[0 .. 6]
+    (time(X) >= 9),  (time(X) < 17), (time(X) >= 0), (time(X) < 9), (time(X) >= 17), (time(X) < 24), #[7 .. 12]
+       month(X, january), month(X, february), month(X, december), month(X, march), month(X, april), month(X, may),
         month(X, june), month(X, july), month(X, august), month(X, september), month(X, october),
-         month(X, november), month(X, december)]
+         month(X, november)] # [13 .. 24]
+ALLOWED = [[-1]*len(REQ)] #
+# some of the day relations
+# exclu = gener_exclusive([(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), 
+#                          (2, 3), (2, 4), (2, 5), (2, 6), (3, 4), (3, 5), (3, 7), (4, 5), (4, 6), (5, 6)], len(REQ), (1, 1)) 
+# exclu1 = gener_exclusive([(9, 9), (12, 12), (8, 11)], len(REQ), (0, 0)) # # Not(0 <= time(X)) # Not(time(X) < 24) # Not(time(X) < 17) # Not(time(X) >= 24) 
+# nexclu = gener_exclusive([(7, 8), (7, 11)] , len(REQ), (0, 0)) # Not(9 <= time(X)) & Not(time(X) < 17) # Not(9 <= time(X)) & Not(time(X) <= 17)
+# exclu2 = gener_exclusive([(7, 10), (8, 11)] , len(REQ), (1, 1)) # (9 <= time(X)) (time(X) < 9) # (time(X) < 17), (17 <= time(X)),            
+# excluD = [0, 0, 0, 0, 0, 0, 0] + [-1]*(25-7) # exhaustive days
+# excluM = [-1]*13 + [0]*12 # exhaustive months
+# ALLOWED = gener_allowed2(exclu + exclu1 + nexclu + exclu2 + [excluD] + [excluM], len(REQ)) 
+### will find no problems ?
 
-
-table.compute_table(REQ, size)
+table.compute_table(REQ, size, ALLOWED)
 
 print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
 # print (str(table))

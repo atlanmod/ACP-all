@@ -1,5 +1,5 @@
 # -------------------
-# 4/2/2020
+# 23/3/2020
 # RBAC2 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### without simplification
@@ -276,6 +276,8 @@ table.add_rule(And(MedicalRecordsWithThirdPartyInfo(T, R), Bills(T, R)), False)
 table.add_rule(And(LegalAgreement(T, R), Bills(T, R)), False)
 ## -------
    
+ALLOWED = [[-1]*len(REQ)]
+
 #======================================analysis
 start = process_time()
 # original version (59)
@@ -283,13 +285,13 @@ size = 11+24+1+13+10
 ### with some disjunction (137)
 #size = 11+24+1+13+10 + 6*13
 
-table.compute_table(REQ, size)
+table.compute_table(REQ, size, ALLOWED)
 # print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
 #     
 # #print (str(table))
 # print (str(table.get_info()))
 # table.show_problems()
-table.check_problems(size)
+# table.check_problems(size)
 # 
 # #table.compare_problems(REQ, size)
 

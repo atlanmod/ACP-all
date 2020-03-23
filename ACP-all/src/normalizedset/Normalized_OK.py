@@ -1,20 +1,19 @@
 # ------------------
-# 4/2/2020
+# 23/3/2020
 # Look for problems in undefined 
 # Check is already a problem and if already seen
 # Finally check if it is a problem add it 
-# With check_unsat and prime at each level 
+# With check_unsat and minimizing at each level 
 ## change heuristic: no new problem by combining
 # compute self.MIN as the  minimum measure for allreq
 # separate init_problems but add them as problems
 # add display for size presentation
 # add sort allred
 # -------------------
-
 ### stop at heuristic
 
 from NormalizedSet import  * #@UnusedWildImport
-from Prime import * #@UnusedWildImport
+from PLA import * #@UnusedWildImport
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
 from Enumerate import * #@UnusedWildImport
@@ -46,6 +45,8 @@ class Normalized_Enumerate(NormalizedSet):
         self.init_problems = []
         # minimal size in allreq
         self.MIN = 1
+        # allowed Binary:REQ else unsat will contains all reductions
+        self.allowed = []        
     # --- end init
 
     # -------------------
@@ -107,15 +108,16 @@ class Normalized_Enumerate(NormalizedSet):
 
     #------------------
     # compute table with frontier enumeration
-    # lreq is a List[ahead predicate]    
+    # lreq is a List[ahead predicate]  
+    # allowed : List[Binary:REQ] space for REQ variables   
     #  and check request syntax
-    def compute_table(self, lreq, size):
+    def compute_table(self, lreq, size, allowed):
         self.init_table(size)
         # compute REQ and REQB
         self.set_REQ(lreq)
         self.compute_unsafe_problems() 
         #print(str(self.get_info()))
-        self.enumerate()     # TACTIC + combine allreq breadth_frist
+        self.enumerate(allowed)     # TACTIC + combine allreq breadth_frist
     # --- end compute_table
 
     #---------------------
@@ -123,7 +125,8 @@ class Normalized_Enumerate(NormalizedSet):
     # combine reduction to :REQ BREADTH-FIRST
     # and use is_included_in to check already a problem
     # and allseen list
-    def enumerate(self):
+    # allowed : List[Binary:REQ] space for REQ variables   
+    def enumerate(self, allowed):
         NBREQ = len(self.REQ)
         print("definitions " + str(self.definitions))
         # --- tactic and binary conversion 
@@ -138,6 +141,12 @@ class Normalized_Enumerate(NormalizedSet):
         # set init as problems and display minimal ones
         self.normalized_problems = self.init_problems
         self.display_problems(1)     
+        # --------
+        # computed allowed binary
+        self.allowed = product(allowed, allred) # define the branching Binary:REQ space to explore
+        self.allowed = minimizing(self.allowed) # critical minimization
+        print("allowed REQ space: " + str(len(self.allowed)) + " / " + str(self.allowed))      
+        allred = self.allowed 
         # -------
         # compute all combinations of reduction to :REQ
         elements = [] # last index of combined element
@@ -202,7 +211,7 @@ class Normalized_Enumerate(NormalizedSet):
             if (not newpbs) and (not self.Hresult) and self.normalized_problems: # compute heuristic
                 heuristic = True
                 print ("Heuristic says sufficient level is " + str(level))
-                self.Hresult = self.normalized_problems.copy() # because of prime
+                self.Hresult = self.normalized_problems 
             print("end #level= " + str(level) + " #problems here " + str(len(self.normalized_problems)) + " time = " + str(floor(process_time()-self.start)))
             print()                         
             level += 1
@@ -251,14 +260,13 @@ class Normalized_Enumerate(NormalizedSet):
         # TACTIC applied to all renamed, but  possible on original
         aux = TACTIC(Not(And(*[X.toBoolRef() for X in self.renamed]))) 
         aux = [list(X) for X in aux] # !!! Goals
-        print ("TACTIC: " + str(aux))
+        print ("TACTIC: " + str(len(aux)) + " / " + str(aux))
         # conversion to binary
         for andlist in aux:
             self.binary.append(self.convert_binary(andlist))
-        prime(self.binary)
         print("compute_problems from " + str(len(self.binary)) + " / " + str(self.binary))
     # --- tactic_conversion
-    
+
     # ------------------------
     # Compute initial problems and clean self.binary
     def initial_problems(self):
@@ -268,35 +276,25 @@ class Normalized_Enumerate(NormalizedSet):
             renamed = self.reverse_binary_req_renamed(binreq)
             if (self.check_undefined_request(renamed)):
                 if (binreq not in self.init_problems):
-                    print(" is a problem " + str(binreq))
-                    print("    " + str(renamed))
+                    #print(" is a problem " + str(binreq))
+                    #print("    " + str(renamed))
                     self.init_problems.append(binreq)
                 del self.binary[I]
             else:
                 I += 1
         # simplification initial problems
-        prime(self.init_problems)
-        prime(self.binary) 
+        self.init_problems = minimizing(self.init_problems)
+        #self.binary = minimizing(self.binary) #  deactivate it 
+        print (" found initial problems " + str(len(self.init_problems)))
         print (" and undefined are " + str(len(self.binary)) + " / " + str(self.binary))     
     # --- initial_problems
     
     # ---------------------
     # final cleaning: remove unsat and move initial problems
     def final_clean(self, level, newpbs):
-        # remove unsat cases
-        I = 0
-        while (I < len(newpbs)):
-            pb = newpbs[I]
-            renamed = self.reverse_binary_req_renamed(pb)
-            if (self.check_unsat_request(renamed)):
-                del newpbs[I]
-            else:
-                I += 1
-        # --- 
         # add as problems and simplify
         self.normalized_problems.extend(newpbs)
-        # prime simplification
-        prime(self.normalized_problems)
+        self.normalized_problems = minimizing(self.normalized_problems)
         # display the new ones found at this level
         self.display_problems(level)
     # --- final_clean
