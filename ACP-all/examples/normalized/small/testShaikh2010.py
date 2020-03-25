@@ -1,5 +1,5 @@
 # -------------------
-# 23/3/2020
+# 24/3/2020
 # test Table ...pour Shaikh2010
 # -------------------
 
@@ -50,6 +50,7 @@ table.add_rule(pdelete(A, D), administrator(A)) #7
 #  ----------------- problems  
 # And(administrator(A), technician(A))
 # And(administrator(A), technician(C), delegate(A, C))
+### BUT this last problem is a junk
 
 #### --------------- analysis
 start = process_time()
@@ -71,5 +72,15 @@ table.show_problems()
 # table.check_problems(size)
 # #print ("size= " + str(size) + " time= " + str(floor(process_time()-start)) + " " + str(table.count) + " / " + str(table.total))
 
-# print(str(table.check_undefined(Exists(table.variables, And(administrator(A), technician(C), delegate(A, C))), size))) # unsat
-
+# # print(str(table.check_undefined(Exists(table.variables, And(administrator(A), technician(C), delegate(A, C))), size))) # unsat
+# #### TESTS ==================
+# S= Solver()
+# # S.add(ForAll([A, C, D], Not(And(administrator(A), technician(A)))))
+# # S.add(Exists([A, C, D], And(administrator(A), technician(C), delegate(A, C))))
+# #S.add(Exists([A, C, D], And(And(administrator(A), technician(C), delegate(A, C)), Not(And(administrator(A), technician(A))))))
+# #S.add(Not(ForAll([A, C, D], Implies(And(administrator(A), technician(C), delegate(A, C)), And(administrator(A), technician(A)))))) # sat 
+# #S.add(Not(ForAll([A, C], Implies(technician(C),  technician(A))))) # sat
+# #S.add(ForAll([A, C], And(technician(C),  Not(technician(A))))) # unsat
+# #S.add(ForAll([A, C], And(Not(technician(C)),  technician(A)))) # unsat
+# # S.add(Exists([A, C], And(Not(technician(C)),  technician(A)))) # sat BUT
+# print(str(S.check())) 

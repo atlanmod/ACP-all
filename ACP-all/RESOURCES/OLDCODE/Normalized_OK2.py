@@ -12,6 +12,9 @@
 # -------------------
 ### stop at heuristic
 
+### TODO change test inclusion with solver it works
+### but slower and does not remove JUNK 
+
 from NormalizedSet import  * #@UnusedWildImport
 from PLA import * #@UnusedWildImport
 from time import * #@UnusedWildImport
@@ -47,6 +50,8 @@ class Normalized_Enumerate(NormalizedSet):
         self.MIN = 1
         # allowed Binary:REQ else unsat will contains all reductions
         self.allowed = []  
+        # solver (renamed) for checking problem inclusion 
+        self.solver_inclusion = Solver()      
     # --- end init
 
     # -------------------
@@ -90,7 +95,12 @@ class Normalized_Enumerate(NormalizedSet):
         #print ("Definitions= " + str(self.definitions))
         #print(str(self))
         self.check_renamed()
-        #print (str(self)) 
+        #print (str(self))
+        # TODO load definitions in solver_inclusion
+        for de in self.definitions:
+            defi = self.definitions[de]
+            if (not is_const(defi)):
+                self.solver_inclusion.add(built_quantified(de == defi, self.variables, True))        
     # --- init_table    
     
     #------------------
@@ -183,11 +193,16 @@ class Normalized_Enumerate(NormalizedSet):
                     # check if already seen   
                     if (common and (common not in allseen)):
                         # check if common is included in problems
-                        if (all([not is_included_in(common, X) for X in self.normalized_problems + newpbs])):
-                            renamed = self.reverse_binary_req_renamed(common) 
+                        # TODO change this test with a solver
+                        renamed = self.reverse_binary_req_renamed(common)                        
+                        if (self.check_inclusion(renamed) != unsat):
+                        # if (all([not is_included_in(common, X) for X in self.normalized_problems + newpbs])):
+                            # renamed = self.reverse_binary_req_renamed(common) go up
                             if (self.check_undefined_request(renamed)):
                                 #print("self.normalized_problems + newpbs " + str(self.normalized_problems + newpbs))
                                 #print (str(common) + " found problem \n" + str(self.rewrite(renamed)))
+                                # TODO add in the solver_inclusion
+                                self.solver_inclusion.add(ForAll(self.variables, Not(renamed)))
                                 newpbs.append(common)
                             elif (maxi):  # only defined not need to continue 
                                 allseen.append(common)     
@@ -281,15 +296,22 @@ class Normalized_Enumerate(NormalizedSet):
             # eliminate -1*
             if (sum(binreq) != -len(binreq)):
                 renamed = self.reverse_binary_req_renamed(binreq)
-                if (self.check_undefined_request(renamed)):
-                    if (binreq not in self.init_problems):
-                        #print(" is a problem " + str(binreq))
-                        print("    " + str(self.rewrite(renamed)))
-                        self.init_problems.append(binreq)
-                    del self.binary[I]
+                # TODO check inclusion
+                if (self.check_inclusion(renamed) != unsat):
+                    if (self.check_undefined_request(renamed)):
+                        if (binreq not in self.init_problems):
+                            #print(" is a problem " + str(binreq))
+                            print("    " + str(self.rewrite(renamed)))
+                            # TODO should use the solver_inclusion quantifier ?
+                            self.solver_inclusion.add(ForAll(self.variables, Not(renamed)))
+                            self.init_problems.append(binreq)
+                        del self.binary[I]
+                    else:
+                        I += 1
+                    # --- undefinedness
                 else:
                     I += 1
-                # --- undefinedness
+                # --- check inclusion
             else:
                 I += 1
             # --- != -1*
@@ -310,6 +332,24 @@ class Normalized_Enumerate(NormalizedSet):
         # display the new ones found at this level
         self.display_problems(level)
     # --- final_clean
+    
+    # ---------------------
+    # TODO
+    # check if the renamed problem is included in the
+    # current set of problems
+    def check_inclusion(self, renamed):
+        self.solver_inclusion.push()
+        self.solver_inclusion.add(built_quantified(renamed, self.variables, False))
+        #print(str(self.solver_inclusion))
+        # unknown are considered sat
+        res = self.solver_inclusion.check()
+        #print("undefined request " + str(renamed) + " ? " + str(res))        
+        self.solver_inclusion.pop()
+        if (res == unknown):
+            self.unknown += 1
+            print ("check undefined request unknown: " + str(renamed))     
+        return res == unsat        
+    # --- check_inclusion
 
     # ------------------
     # translate a binary:REQ into a renamed Z3BoolRef

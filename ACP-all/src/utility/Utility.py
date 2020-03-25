@@ -1,5 +1,5 @@
 # ------------------------------
-# 23/3/2020
+# 24/3/2020
 # some additional utility functions
 #--------------------------
 
@@ -19,11 +19,24 @@ DNF = Then(CNF, SIMPLIFY, Repeat(OrElse(Then(SIMPLIFY, SPLIT), SKIP)))
 COUNTER_VARS = 0
 
 # -----------------------
-# TODO compute the number of defined bits in a List[Binary]
+# list of defined bit positions (0,1)
+# abin:Binary
+def defined(abin):
+    return [I for I in range(len(abin)) if (abin[I] != -1)]
+# --- defined
+
+# -----------------------
+# list of undefined bit positions (== -1)
+# abin:Binary
+def undefined(abin):
+    return [I for I in range(len(abin)) if (abin[I] == -1)]
+# --- undefined
+
+# -----------------------
+# compute the number of defined bits in a List[Binary]
 def measure(lbin):
     return sum([sum([1 for B in BIN if B != -1]) for BIN in lbin])
-# --- renaming
-
+# --- measure
 
 # -----------------------
 # Rename the variables of this expression
@@ -37,20 +50,6 @@ def renaming(Z3exp):
         COUNTER_VARS += 1
     return (newvars, substitute(Z3exp, [(varss[I], newvars[I]) for I in range(len(varss))]))
 # --- renaming
-
-# -----------------------
-# list of defined bit positions (0,1)
-# abin:Binary
-def defined(abin):
-    return [I for I in range(len(abin)) if (abin[I] != -1)]
-# --- defined
-
-# -----------------------
-# list of undefined bit positions (== -1)
-# abin:Binary
-def undefined(abin):
-    return [I for I in range(len(abin)) if (abin[I] == -1)]
-# --- undefined
 
 # -----------------------
 # reduce a (X) Binary:REQB to a Binary:REQ with Y=self.REQB 

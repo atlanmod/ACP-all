@@ -3,6 +3,11 @@ change prime with pyeda better performances and minimum
 but deactivate it after tactic since too costly
 add allowed computation 
 Change heuristic with length, but also measure
+
+* 25/3/2020
+Test with solver_inclusion to eliminate JUNK cases
+but it does not remove it saved in OLDCODE
+
 * TODO ===================
 
 improve heuristic if non several time ?

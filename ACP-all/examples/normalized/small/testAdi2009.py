@@ -66,4 +66,5 @@ table.show_problems()
 
 #### tests ======================
 #print(str(product([[-1, -1, -1]], [[1, 0, 1], [-1, 0, 1]])))
-
+# S = Solver()
+# S.add(ForAll(table.variables, ))
