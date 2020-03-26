@@ -188,11 +188,15 @@ def compare_bits(left, right):
 # return a List[Binary] (intersect) or [] (is in negation)
 def product(lefts, rights):
     res = []
-    for bleft in lefts:
-        for bright in rights:
-            tmp = make_and(bleft, bright)
-            if (tmp):
-                res.append(tmp)
+    if (lefts):
+        for bleft in lefts:
+            for bright in rights:
+                tmp = make_and(bleft, bright)
+                if (tmp):
+                    res.append(tmp)
+        # ---
+    else:
+        res = rights
     return res
 # --- product
 
@@ -646,4 +650,19 @@ def gener_exclusive(conflicts, NBREQ, pair):
     return tmp
 # --- gener_exclusive
 
+# -------------
+# TODO compute the negation of allowed Binary:REQ
+# allowed: List[Binary:REQ]
+# return a DNF List[Binary:REQ]
+def compute_denied(allowed, NBREQ):
+    tmp = []
+    if (allowed):
+        for B in allowed:
+            neg = complement(B)
+            tmp = product(tmp, neg)
+        # --- for B
+    else:
+        tmp = [[-1]*NBREQ]
+    return minimizing(tmp) # TODO could be expensive
+# --- compute_denied
 

@@ -8,7 +8,14 @@ Change heuristic with length, but also measure
 Test with solver_inclusion to eliminate JUNK cases
 but it does not remove it saved in OLDCODE
 
+* 26/3/2020
+Try new test with DENIED, take care of the place of the test
+since once eliminated it has been already seen
+No need of minimizing since we have a AND-term X DNF
+
 * TODO ===================
+
+TODO DENIED : def ? minimizing ?
 
 improve heuristic if non several time ?
 if newpbs included in known after simplif ?

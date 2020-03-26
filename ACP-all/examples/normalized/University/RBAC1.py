@@ -117,12 +117,11 @@ REQ = [Staff(T, X), Employee(T, X), AdmissionsOfficer(T, X), DeanOfAdmissions(T,
 ### TODO et ceux avec des Y ? les succ non si conclusions 
 ####il doit manque pleins d'atomes et donc aussi des relations 
 ALLOWED = [[-1]*len(REQ)]
-#NOTRELREQ = []
 
 #======================================analysis
 #### analysis ----------------
 # RBAC1: 9 administrative + 9 revoke + 25 + 70 (113 rules)
 size =  113
 
-table.compute_table(REQ, size, ALLOWED) #, NOTRELREQ)
-table.show_problems()
+table.compute_table(REQ, size, ALLOWED) 
+#table.show_problems()

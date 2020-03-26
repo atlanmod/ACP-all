@@ -12,7 +12,7 @@
 # -------------------
 ### stop at heuristic
 
-### TODO try changing ALLOWED -> DENIED
+### TODO try changing ALLOWED -> DENIED BUT problem with req&ALLOWED sat 
 
 from NormalizedSet import  * #@UnusedWildImport
 from PLA import * #@UnusedWildImport

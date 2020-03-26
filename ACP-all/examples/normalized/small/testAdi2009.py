@@ -1,5 +1,5 @@
 # -------------------
-# 23/3/2020
+# 26/3/2020
 # Test Adi2009 
 # -------------------
 
@@ -39,13 +39,19 @@ table.add_rule(chief(h), pread(h, p)) #4
 #### ---------------
 
 #  =================== Problems ================ 
-# And(nurse(h), doctor(h), Not(sameward(h, p)))
-# And(nurse(h), Not(sameward(h, p)), chief(h))
+# And(nurse(h), doctor(h), Not(sameward(h, p))) [1, 1, 0, -1]
+# And(nurse(h), Not(sameward(h, p)), chief(h))  [1, -1, 0, 1]
 
 ### -------- analysis 
 size = 5
 REQ = [nurse(h), doctor(h), sameward(h, p), chief(h)]
-ALLOWED = [[-1]*len(REQ)]
+#ALLOWED = [[-1]*len(REQ)]
+# Ordering REQ [nurse(h), doctor(h), sameward(h, p), chief(h)]
+DENIED = [] # no req intersects it
+
+# DENIED = [[0, -1, -1, -1], [-1, -1, 1, -1], [-1, -1, -1, 0]] # [1, -1, 0, 1] OK
+# DENIED = [[0, -1, -1, -1], [-1, 0, -1, -1], [-1, -1, 1, -1]] # [1, 1, 0, -1] OK
+# DENIED = [[-1, 0, -1, 0], [-1, -1, 1, -1], [0, -1, -1, -1]] # BOTH OK
 
 # table.classify(size)
 # table.check_simplified(size)
@@ -54,7 +60,7 @@ ALLOWED = [[-1]*len(REQ)]
 # table.normalize()
 # table.compute_dnf()
 
-table.compute_table(REQ, size, ALLOWED)
+table.compute_table(REQ, size, DENIED), #ALLOWED)
   
 #print (str(table))
 #print (str(table.get_info()))
@@ -68,3 +74,5 @@ table.show_problems()
 #print(str(product([[-1, -1, -1]], [[1, 0, 1], [-1, 0, 1]])))
 # S = Solver()
 # S.add(ForAll(table.variables, ))
+
+#print(str(minimizing(product([[0, -1, -1, -1], [-1, 0, -1, -1], [-1, -1, 1, -1]], [[0, -1, -1, -1], [-1, -1, 1, -1], [-1, -1, -1, 0]]))))

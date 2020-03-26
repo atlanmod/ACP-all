@@ -1,5 +1,5 @@
 # -------------------
-# 23/3/2020
+# 25/3/2020
 # example RBSIM needs predicates not PROP!
 # # # R23
 # table.add_rule(AGE < 67, Not(Retired))
@@ -208,12 +208,12 @@ REQ = [BIC(X), HHI(X), HLI(X), Married(X), Children(X), CS(X) < 6 * MS(X),
 # (P_38(X), Gambling(X)), (P_39(X), Important(X)), (P_40(X), Worry(X)), (P_41(X), Budget(X)), (P_42(X), AoYC(X) < 16), (P_43(X), AoYC(X) >= 16), (P_44(X), 
 # College(X)), (P_45(X), Scholarship(X)), (P_46(X), Loan(X)), (P_47(X), Fund(X))])
 #size= 48 REQ-pos [0, 1, 2, 4, 5, 7, 10, 12, 13, 15, 19, 24, 25, 26, 27, 29, 31, 32, 33, 34, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47] mapping {0: 0, 1: 1, 2: 2, 4: 3, 5: 4, 7: 5, 10: 6, 12: 7, 13: 8, 15: 9, 19: 10, 24: 11, 25: 12, 26: 13, 27: 14, 29: 15, 31: 16, 32: 17, 33: 18, 34: 19, 36: 20, 37: 21, 38: 22, 39: 23, 40: 24, 41: 25, 42: 26, 43: 27, 44: 28, 45: 29, 46: 30, 47: 31}
-ALLOWED = [[-1]*len(REQ)]
+#ALLOWED = [[-1]*len(REQ)]
 exclu = gener_exclusive([(6, 7), (8, 9), (10, 11), (10, 9), (16, 17), (27, 28)], len(REQ), (1, 1)) #
 exclu1 = gener_exclusive([(6, 8), (6, 9), (7, 8), (7, 16)], len(REQ), (1, 0)) #
 exclu2 = gener_exclusive([(7, 9) ], len(REQ), (0, 1)) #
 exclu3 = gener_exclusive([(6, 7), (8, 9)], len(REQ), (0, 0)) #
-ALLOWED = gener_allowed2(exclu+exclu1+exclu2+exclu3, len(REQ)) # TODO ??? And(Not(NoY2R(X) >= 20), Age(X) < 65, Age(X) >= 65)
+ALLOWED = gener_allowed2(exclu+exclu1+exclu2+exclu3, len(REQ)) # 
 ### TODO add it
 # NOTRELREQ = []
 

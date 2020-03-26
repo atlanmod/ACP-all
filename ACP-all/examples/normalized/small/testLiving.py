@@ -1,5 +1,5 @@
 # -------------------
-# 23/3/2020
+# 26/3/2020
 # Test Living from  http://hssc.sla.mdx.ac.uk/staffpages/rvb/teaching/BIS3226/hand03.pdf
 # -------------------
 
@@ -69,9 +69,7 @@ REQ = [saturday(X), sunday(X), goodweather, raining] # dico ordering
 # definitions OrderedDict([(P_0(X), saturday(X)), (P_1(X), sunday(X)), (P_2(cinema), goto(cinema)), (P_3(work), goto(work)), (P_4(outside), goto(outside)), (P_5(work), doing(work)), (P_6(Y), goto(Y)), (P_7(Y), cango(Y)), (P_8(outside), cango(outside)), (P_9(home), doing(home)), (goodweather, goodweather), (raining, raining), (P_10(umbrella), own(umbrella))])
 # size= 13 REQ-pos [0, 1, 10, 11] mapping {0: 0, 1: 1, 10: 2, 11: 3}
 ALLOWED = gener_allowed2([[1, 1, -1, -1], [-1, -1, 1, 1]], 4)
-#print(str(ALLOWED))
-# 
-#NOTRELREQ = []
+DENIED = [[1, 1, -1, -1], [-1, -1, 1, 1]]
 
 # table.classify(size)
 # table.check_simplified(size)
@@ -80,7 +78,7 @@ ALLOWED = gener_allowed2([[1, 1, -1, -1], [-1, -1, 1, 1]], 4)
 # table.normalize()
 # table.compute_dnf()
 
-table.compute_table(REQ, size, ALLOWED) #, NOTRELREQ)
+table.compute_table(REQ, size, DENIED) #ALLOWED) 
   
 #print (str(table))
 # print (str(table.get_info()))

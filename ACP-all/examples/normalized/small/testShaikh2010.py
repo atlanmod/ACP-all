@@ -1,9 +1,7 @@
 # -------------------
-# 24/3/2020
+# 26/3/2020
 # test Table ...pour Shaikh2010
 # -------------------
-
-### TODO revoir le resultat ?
 
 ### -------------
 from Normalized_OK import * #@UnusedWildImport
@@ -55,13 +53,18 @@ table.add_rule(pdelete(A, D), administrator(A)) #7
 #### --------------- analysis
 start = process_time()
 # REQ = [administrator(A), technician(A), technician(C), delegate(A, C)]
-#ALLOWED = [[-1, -1, -1, -1]] # since relations between technicians etat= 15 transitions= 14
-# ALLOWED = [[-1, 1, 1, -1], [-1, 0, 0, -1]] # since relations between technicians etat= 10 transitions= 9
+ALLOWED = [[-1, 1, 1, -1], [-1, 0, 0, -1]] # since relations between technicians etat= 10 transitions= 9
 REQ = [administrator(A), technician(A), technician(C), delegate(A, C)] # dico ordering
-ALLOWED = gener_allowed2([[-1, 0, 1, -1], [-1, 1, 0, -1]], len(REQ)) 
-#NOTRELREQ = [[[-1, 1, -1, -1, -1, -1, -1, 0]], [[-1, 0, -1, -1, -1, -1, -1, 1]]]
+# Ordering REQ [administrator(A), technician(A), technician(C), delegate(A, C)]
+#ALLOWED = gener_allowed2([[-1, 0, 1, -1], [-1, 1, 0, -1]], len(REQ)) 
+#DENIED = [] 
+### compute it from ALLOWED = [[-1, 1, 1, -1], [-1, 0, 0, -1]]
+# print(str(complement([-1, 1, 1, -1])))
+# print(str(complement([-1, 0, 0, -1])))
+# print(str(product([[-1, 0, -1, -1], [-1, -1, 0, -1]], [[-1, 1, -1, -1], [-1, -1, 1, -1]])))
+# print(str(compute_denied(ALLOWED, len(REQ))))
 
-table.compute_table(REQ, size, ALLOWED) #, NOTRELREQ)
+#table.compute_table(REQ, size, compute_denied(ALLOWED, len(REQ))) ### TODO ???
  
 # print ("size = " + str(size) + " time = " + str(floor(process_time()-start)))
 # #print (str(table))

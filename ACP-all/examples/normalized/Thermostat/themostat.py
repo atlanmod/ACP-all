@@ -1,5 +1,5 @@
 # -------------------
-# 23/3/2020
+# 25/3/2020
 ## inpired from termostat control system in
 # Logical Foundations for Rule-Based Systems De Antoni Ligeza
 # or in papers from G. Nalepa
@@ -127,7 +127,7 @@ REQ = [monday(X), tuesday(X), wednesday(X), thursday(X), friday(X), saturday(X),
        month(X, january), month(X, february), month(X, december), month(X, march), month(X, april), month(X, may),
         month(X, june), month(X, july), month(X, august), month(X, september), month(X, october),
          month(X, november)] # [13 .. 24]
-ALLOWED = [[-1]*len(REQ)] #
+#ALLOWED = [[-1]*len(REQ)] #
 #####some of the day relations
 exclu = gener_exclusive([(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), 
                          (2, 3), (2, 4), (2, 5), (2, 6), (3, 4), (3, 5), (3, 7), (4, 5), (4, 6), (5, 6)], len(REQ), (1, 1)) 
@@ -138,14 +138,15 @@ excluD = [0, 0, 0, 0, 0, 0, 0] + [-1]*(25-7) # exhaustive days
 excluM = [-1]*13 + [0]*12 # exhaustive months
 ALLOWED = gener_allowed2(exclu + exclu1 + nexclu + exclu2 + [excluD] + [excluM], len(REQ)) 
 ## will find no problems !
+DENIED = exclu + exclu1 + nexclu + exclu2 + [excluD] + [excluM]
 
-table.compute_table(REQ, size, ALLOWED)
+table.compute_table(REQ, size, DENIED) #ALLOWED)
 
 print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
 # print (str(table))
 print (str(table.get_info()))
 #table.show()
-table.show_problems()
+#table.show_problems()
 #table.check_problems(size)
 
 ### many explicit unsafe not too much a problem since

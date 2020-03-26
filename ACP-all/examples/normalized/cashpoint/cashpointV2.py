@@ -1,9 +1,11 @@
 # -------------------
-# 23/3/2020
+# 25/3/2020
 # cashpoint from Nalepa2008
 # -------------------
 #### clearly a straight translation not the simpler possible specification
 #### -------
+
+### TODO check denied louche
 
 from Normalized_OK import * #@UnusedWildImport
 
@@ -91,19 +93,25 @@ size = 13 # +1 menuOption unsafe
 ### PIN and user actions TODO + other infos
 REQ = [(menuOption(T, U) == payout), (menuOption(T, U) == balanceInquiry), (numberOfBills(T, C) >= desiredAmount(T, U)), (numberOfBills(T, C) < desiredAmount(T, U)),
        (desiredAmount(T, U) >= freeFunds(T, U)), (desiredAmount(T, U) < freeFunds(T, U)), (enteredPIN(T, U) == pINInDatabase(T, C)), (enteredPIN(T, U) != pINInDatabase(T, C))]
-###ALLOWED = [[-1]*len(REQ)] # since found three unsat requests etat= 154 transitions= 165
+ALLOWED = [[-1]*len(REQ)] # since found three unsat requests 
 # compare with 0/1 and 2/3 4/5 6/7 => 00 10 01 soit 81!!!
 #combinations = [[0, 0], [1, 0], [0, 1]]
 #ALLOWED = gener_allowed([([0,1], combinations), ([2,3], combinations), ([4,5], combinations), ([6,7], combinations)], len(REQ)) # etat= 151 transitions= 154
-ALLOWED = gener_allowed2([[1, 1, -1, -1, -1, -1, -1, -1], [-1, -1, 1, 1, -1, -1, -1, -1], [-1, -1, -1, -1, 1, 1, -1, -1], [-1, -1, -1, -1, -1, -1, 1, 1],
-                          [0, 0, -1, -1, -1, -1, -1, -1], [-1, -1, 0, 0, -1, -1, -1, -1], [-1, -1, -1, -1, 0, 0, -1, -1], [-1, -1, -1, -1, -1, -1, 0, 0]
-                          ], len(REQ))
-#
-# definitions OrderedDict([(P_0(T, U, payout), enteredPIN(T, U) == payout), (P_1(T, U, balanceInquiry), enteredPIN(T, U) == balanceInquiry), (P_2(T, C, U), numberOfBills(T, C) >= desiredAmount(T, U)), (P_3(T, U, C), enoughCashInCashpoint(T, U, C)), (P_4(T, C, U), numberOfBills(T, C) < desiredAmount(T, U)), (P_5(T, U), desiredAmount(T, U) >= freeFunds(T, U)), (P_6(T, U), clientHasFreeFunds(T, U)), (P_7(T, U), desiredAmount(T, U) < freeFunds(T, U)), (P_8(T, U, C), enteredPIN(T, U) == pINInDatabase(T, C)), (P_9(T, U, C), authentication(T, U, C)), (P_10(T, U, C), enteredPIN(T, U) != pINInDatabase(T, C)), (P_11(T, U, C, payOutCash), activity(T, U, C) == payOutCash), (P_12(T, U, C, notEnoughFundsInMachine), activity(T, U, C) == notEnoughFundsInMachine), (P_13(T, U, C, notEnoughFundsOnAccount), activity(T, U, C) == notEnoughFundsOnAccount), (P_14(T, U, C, notEnoughFunds), activity(T, U, C) == notEnoughFunds), (P_15(T, U, C, displayBalance), activity(T, U, C) == displayBalance)])
-# size= 16 REQ-pos [0, 1, 2, 4, 5, 7, 8, 10] mapping {0: 0, 1: 1, 2: 2, 4: 3, 5: 4, 7: 5, 8: 6, 10: 7}
-#NOTRELREQ = [] # TODO
+# ALLOWED = gener_allowed2([[1, 1, -1, -1, -1, -1, -1, -1], [-1, -1, 1, 1, -1, -1, -1, -1], [-1, -1, -1, -1, 1, 1, -1, -1], [-1, -1, -1, -1, -1, -1, 1, 1],
+#                           [0, 0, -1, -1, -1, -1, -1, -1], [-1, -1, 0, 0, -1, -1, -1, -1], [-1, -1, -1, -1, 0, 0, -1, -1], [-1, -1, -1, -1, -1, -1, 0, 0]
+#                           ], len(REQ))
+# #
+#Ordering REQ [numberOfBills(T, C) >= desiredAmount(T, U), numberOfBills(T, C) < desiredAmount(T, U), 
+# desiredAmount(T, U) >= freeFunds(T, U), desiredAmount(T, U) < freeFunds(T, U), 
+# enteredPIN(T, U) == pINInDatabase(T, C), enteredPIN(T, U) != pINInDatabase(T, C),
+# menuOption(T, U) == payout, menuOption(T, U) == balanceInquiry]
 
-table.compute_table(REQ, size, ALLOWED) #, NOTRELREQ)
+DENIED = [[1, 1, -1, -1, -1, -1, -1, -1]]
+#[[1, 1, -1, -1, -1, -1, -1, -1], [-1, -1, 1, 1, -1, -1, -1, -1], [-1, -1, -1, -1, 1, 1, -1, -1], [-1, -1, -1, -1, -1, -1, 1, 1],
+#          ]
+    #   [0, 0, -1, -1, -1, -1, -1, -1], [-1, -1, 0, 0, -1, -1, -1, -1], [-1, -1, -1, -1, 0, 0, -1, -1], [-1, -1, -1, -1, -1, -1, 0, 0]]
+
+table.compute_table(REQ, size, DENIED) #ALLOWED) 
 print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
     
 #print (str(table))
