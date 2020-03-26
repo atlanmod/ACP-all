@@ -1,11 +1,10 @@
 # -------------------
-# 25/3/2020
+# 26/3/2020
 # cashpoint from Nalepa2008
 # -------------------
 #### clearly a straight translation not the simpler possible specification
 #### -------
 
-### TODO check denied louche
 
 from Normalized_OK import * #@UnusedWildImport
 
@@ -93,26 +92,28 @@ size = 13 # +1 menuOption unsafe
 ### PIN and user actions TODO + other infos
 REQ = [(menuOption(T, U) == payout), (menuOption(T, U) == balanceInquiry), (numberOfBills(T, C) >= desiredAmount(T, U)), (numberOfBills(T, C) < desiredAmount(T, U)),
        (desiredAmount(T, U) >= freeFunds(T, U)), (desiredAmount(T, U) < freeFunds(T, U)), (enteredPIN(T, U) == pINInDatabase(T, C)), (enteredPIN(T, U) != pINInDatabase(T, C))]
-ALLOWED = [[-1]*len(REQ)] # since found three unsat requests 
+# Ordering REQ [numberOfBills(T, C) >= desiredAmount(T, U), numberOfBills(T, C) < desiredAmount(T, U), 
+#               desiredAmount(T, U) >= freeFunds(T, U), desiredAmount(T, U) < freeFunds(T, U), 
+#               enteredPIN(T, U) == pINInDatabase(T, C), enteredPIN(T, U) != pINInDatabase(T, C), 
+#               menuOption(T, U) == payout, menuOption(T, U) == balanceInquiry]
+
+# ALLOWED = [[-1]*len(REQ)] # since found three unsat requests 
 # compare with 0/1 and 2/3 4/5 6/7 => 00 10 01 soit 81!!!
-#combinations = [[0, 0], [1, 0], [0, 1]]
-#ALLOWED = gener_allowed([([0,1], combinations), ([2,3], combinations), ([4,5], combinations), ([6,7], combinations)], len(REQ)) # etat= 151 transitions= 154
-# ALLOWED = gener_allowed2([[1, 1, -1, -1, -1, -1, -1, -1], [-1, -1, 1, 1, -1, -1, -1, -1], [-1, -1, -1, -1, 1, 1, -1, -1], [-1, -1, -1, -1, -1, -1, 1, 1],
-#                           [0, 0, -1, -1, -1, -1, -1, -1], [-1, -1, 0, 0, -1, -1, -1, -1], [-1, -1, -1, -1, 0, 0, -1, -1], [-1, -1, -1, -1, -1, -1, 0, 0]
-#                           ], len(REQ))
-# #
-#Ordering REQ [numberOfBills(T, C) >= desiredAmount(T, U), numberOfBills(T, C) < desiredAmount(T, U), 
-# desiredAmount(T, U) >= freeFunds(T, U), desiredAmount(T, U) < freeFunds(T, U), 
-# enteredPIN(T, U) == pINInDatabase(T, C), enteredPIN(T, U) != pINInDatabase(T, C),
-# menuOption(T, U) == payout, menuOption(T, U) == balanceInquiry]
+combinations = [[-1, 0], [0, -1]]
+# ALLOWED = gener_allowed([([0,1], combinations), ], len(REQ)) 
+# ALLOWED = [[0, 0, -1, -1, -1, -1, -1, -1], [1, 0, -1, -1, -1, -1, -1, -1], [0, 1, -1, -1, -1, -1, -1, -1]]
+### => remove first
+# ALLOWED = [[0, 0, 0, 0, -1, -1, -1, -1], [1, 0, 0, 0, -1, -1, -1, -1], [0, 1, 0, 0, -1, -1, -1, -1],
+#            [0, 0, 1, 0, -1, -1, -1, -1], [1, 0, 1, 0, -1, -1, -1, -1], [0, 1, 1, 0, -1, -1, -1, -1],
+#            [0, 0, 0, 1, -1, -1, -1, -1], [1, 0, 0, 1, -1, -1, -1, -1], [0, 1, 0, 1, -1, -1, -1, -1] ]
+#### => remove first and second
+#ALLOWED = [[-1, -1, -1, -1, 0, 0, -1, -1], [-1, -1, -1, -1, 0, 1, -1, -1], [-1, -1, -1, -1, 1, 0, -1, -1]]
+### remove last
 
-DENIED = [[1, 1, -1, -1, -1, -1, -1, -1]]
-#[[1, 1, -1, -1, -1, -1, -1, -1], [-1, -1, 1, 1, -1, -1, -1, -1], [-1, -1, -1, -1, 1, 1, -1, -1], [-1, -1, -1, -1, -1, -1, 1, 1],
-#          ]
-    #   [0, 0, -1, -1, -1, -1, -1, -1], [-1, -1, 0, 0, -1, -1, -1, -1], [-1, -1, -1, -1, 0, 0, -1, -1], [-1, -1, -1, -1, -1, -1, 0, 0]]
+ALLOWED = gener_allowed([([0,1], combinations), ([2,3], combinations), ([4,5], combinations)], len(REQ)) 
+### remove all
 
-table.compute_table(REQ, size, DENIED) #ALLOWED) 
-print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
+table.compute_table(REQ, size, ALLOWED) 
     
 #print (str(table))
 #print (str(table.get_info()))

@@ -1,5 +1,5 @@
 # ------------------------------
-# 26/3/2020
+# 24/3/2020
 # some additional utility functions
 #--------------------------
 
@@ -296,6 +296,58 @@ def estimate(nbreq, lbinaryreq, lasts, allreq):
     return res    
 # --- estimate
 
+# # -----------------
+# # combined and check exclusivity of two List[1/0]
+# # return the union of the combinations and True if exclusive
+# def make_combine(left, right):
+#     #print ("make_common " + str(left) + " / " + str(right))
+#     size = len(left)
+#     res = [0]*size
+#     I = 0
+#     finish = True
+#     while (I < size):
+#         if ((left[I] == 1) and (right[I] == 1)):
+#             finish = False
+#             res[I] = 1
+#         elif (left[I] == 0):
+#             res[I] = right[I]
+#         elif (right[I] == 0):
+#             res[I] = left[I]
+#         I += 1
+#     #print("make_common= " + str([] if finish else res))
+#     return (res, finish)
+# # --- make_common
+
+# # -----------------
+# # compare two binary and compute "base" bits
+# # left, right are two binarys
+# # mask is a REQB binary, all with same length
+# # return a base binary or [] if fails
+# # and maximal indicator
+# def make_common(left, right, mask):
+#     #print ("make_common " + str(left) + " / " + str(right))
+#     res = [-1]*len(mask)
+#     i = 0
+#     finish = False
+#     maximal = True
+#     while (i < len(mask)) and not finish:
+#         # only for REQ==1
+#         if (mask[i] == 1):
+#             if (left[i] == right[i]):
+#                 res[i] = left[i] 
+#                 if (res[i] == -1):
+#                     maximal = False
+#             elif  ((left[i] == -1) or (right[i] == -1)):
+#                 res[i] = -(left[i] * right[i])
+#             else: # 1!=0
+#                 finish = True
+#         # --- if mask
+#         i += 1
+#     #print("make_common= " + str([] if finish else res))
+#     #return ([] if finish else res)
+#     return (([], False) if finish else (res, maximal))
+# # --- make_common
+
 # ----------------
 # extract part to simplify and  don't forget duplication
 # return a tuple (list of Binary to simplify, the original simplified lbinary)
@@ -547,8 +599,6 @@ def compute_positions(lbinary, REQB):
 # -------------
 # generate allowed requests which are sat
 # lpos_combi: a list of tuple (list of positions, list of combinations)
-# compose all the independent relations
-# return List[Binary:REQ] representing correct requests
 def gener_allowed(lpos_combi, NBREQ):
     res = [[-1]*NBREQ]
     for (lpos, lcombi) in lpos_combi:
@@ -567,3 +617,52 @@ def gener_allowed(lpos_combi, NBREQ):
     # --- lpos_combi
     return res
 # --- gener_allowed
+
+# -------------
+# generate allowed requests which are sat
+# assumes definitions ordering of REQ 
+# conflicts is a list of Binary:REQ defining prohibited binaries 
+# it represents  DNF of the denied binary 
+def gener_allowed2(conflicts, NBREQ):
+    if (conflicts):
+        tmp = complement(conflicts[0])
+        if (len(conflicts) > 1):
+            for conf in conflicts[1:]:
+                tmp = minimizing(product(tmp, complement(conf)))
+                #prime(tmp)
+            # ---
+        return tmp
+    else:
+        return [[-1]*NBREQ]
+# --- gener_allowed2
+
+# -------------
+# generate binary conflicts from exclusive positions
+# conflicts: a list of pair of positions
+# pair: a couple of bits
+def gener_exclusive(conflicts, NBREQ, pair):
+    tmp =  []
+    for (P, Q) in conflicts:
+        binary = [-1]*NBREQ
+        binary[P] = pair[0]
+        binary[Q] = pair[1]
+        tmp.append(binary)
+    return tmp
+# --- gener_exclusive
+
+# -------------
+# TODO compute the negation of allowed Binary:REQ
+# allowed: List[Binary:REQ]
+# return a DNF List[Binary:REQ]
+def compute_denied(allowed, NBREQ):
+    tmp = []
+    if (allowed):
+        for B in allowed:
+            neg = complement(B)
+            tmp = product(tmp, neg)
+        # --- for B
+    else:
+        tmp = [[-1]*NBREQ]
+    return minimizing(tmp) # TODO could be expensive
+# --- compute_denied
+

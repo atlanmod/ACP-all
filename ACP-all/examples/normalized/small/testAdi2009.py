@@ -45,13 +45,13 @@ table.add_rule(chief(h), pread(h, p)) #4
 ### -------- analysis 
 size = 5
 REQ = [nurse(h), doctor(h), sameward(h, p), chief(h)]
-#ALLOWED = [[-1]*len(REQ)]
+#ALLOWED = [[-1]*len(REQ)] # two
 # Ordering REQ [nurse(h), doctor(h), sameward(h, p), chief(h)]
-DENIED = [] # no req intersects it
-
-# DENIED = [[0, -1, -1, -1], [-1, -1, 1, -1], [-1, -1, -1, 0]] # [1, -1, 0, 1] OK
-# DENIED = [[0, -1, -1, -1], [-1, 0, -1, -1], [-1, -1, 1, -1]] # [1, 1, 0, -1] OK
-# DENIED = [[-1, 0, -1, 0], [-1, -1, 1, -1], [0, -1, -1, -1]] # BOTH OK
+#ALLOWED = [] # 0
+#ALLOWED = [[1, 1, 0, -1]] # two because 1 1 0 1 is common
+#ALLOWED = [[1, 1, 0, 1]] # two because 1 1 0 1 is common
+#ALLOWED = [[1, 1, 0, 0]] # only this
+#ALLOWED = [[1, 0, 0, 1]] # only this
 
 # table.classify(size)
 # table.check_simplified(size)
@@ -60,7 +60,7 @@ DENIED = [] # no req intersects it
 # table.normalize()
 # table.compute_dnf()
 
-table.compute_table(REQ, size, DENIED), #ALLOWED)
+table.compute_table(REQ, size, ALLOWED)
   
 #print (str(table))
 #print (str(table.get_info()))

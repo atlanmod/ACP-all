@@ -51,15 +51,15 @@ table.add_rule(And(father(X,Z), mother(Y,Z)), wife(Y,X)) ### it is redundant !!!
 size = 6
 ### those in conditions
 REQ = [father(X,Y), father(X,Z), mother(X,Y), mother(Y,Z), husband(Z,X), husband(Y,X), wife(X,Y), wife(Z,X)]
-ALLOWED = [[-1]*len(REQ)] # etat= 40 transitions= 56
-### TODO ya des relations ? 
-# REQ = [father(X,Y), father(X,Z), father(Z,Y), mother(X,Y), mother(Y,Z), mother(Z,Y), 
-#        husband(Z,X), husband(Y,X), husband(X,Y), wife(X,Y), wife(Y,X), wife(Z,X)]
+ALLOWED = [[-1]*len(REQ)] # 
+ALLOWED = []
+# Ordering REQ [father(X, Y), wife(Z, X), mother(X, Y), husband(Z, X), wife(X, Y), husband(Y, X), father(X, Z), mother(Y, Z)]
 # definitions OrderedDict([(P_0(X, Y), father(X, Y)), (P_1(Z, X), wife(Z, X)), (P_2(Z, Y), mother(Z, Y)), (P_3(X, Y), mother(X, Y)), (P_4(Z, X), husband(Z, X)), (P_5(Z, Y), father(Z, Y)), (P_6(X, Y), wife(X, Y)), (P_7(Y, X), husband(Y, X)), (P_8(X, Z), father(X, Z)), (P_9(Y, Z), mother(Y, Z)), (P_10(X, Y), husband(X, Y))])
 # size= 11 REQ-pos [0, 1, 3, 4, 6, 7, 8, 9] mapping {0: 0, 1: 1, 3: 2, 4: 3, 6: 4, 7: 5, 8: 6, 9: 7}
-DENIED = []
+ALLOWED = [[1, 1, -1, -1, -1, -1, -1, -1], [0, 0, -1, -1, -1, -1, -1, -1]]
+### there are relations but will not change something since already included in allred
 
-table.compute_table(REQ, size, DENIED) # ALLOWED) 
+table.compute_table(REQ, size, ALLOWED) 
   
 #print (str(table))
 #print (str(table.get_info()))

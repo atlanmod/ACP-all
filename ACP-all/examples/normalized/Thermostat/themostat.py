@@ -127,24 +127,24 @@ REQ = [monday(X), tuesday(X), wednesday(X), thursday(X), friday(X), saturday(X),
        month(X, january), month(X, february), month(X, december), month(X, march), month(X, april), month(X, may),
         month(X, june), month(X, july), month(X, august), month(X, september), month(X, october),
          month(X, november)] # [13 .. 24]
+# Ordering REQ [monday(X), tuesday(X), wednesday(X), thursday(X), friday(X), saturday(X), sunday(X), time(X) >= 9, time(X) < 17, time(X) >= 0, time(X) < 9, time(X) >= 17, time(X) < 24, month(X, january), month(X, february), month(X, december), month(X, march), month(X, april), month(X, may), month(X, june), month(X, july), month(X, august), month(X, september), month(X, october), month(X, november)]
+
 #ALLOWED = [[-1]*len(REQ)] #
-#####some of the day relations
-exclu = gener_exclusive([(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), 
-                         (2, 3), (2, 4), (2, 5), (2, 6), (3, 4), (3, 5), (3, 7), (4, 5), (4, 6), (5, 6)], len(REQ), (1, 1)) 
-exclu1 = gener_exclusive([(9, 9), (12, 12), (8, 11)], len(REQ), (0, 0)) # # Not(0 <= time(X)) # Not(time(X) < 24) # Not(time(X) < 17) # Not(time(X) >= 24) 
-nexclu = gener_exclusive([(7, 8), (7, 11)] , len(REQ), (0, 0)) # Not(9 <= time(X)) & Not(time(X) < 17) # Not(9 <= time(X)) & Not(time(X) <= 17)
-exclu2 = gener_exclusive([(7, 10), (8, 11)] , len(REQ), (1, 1)) # (9 <= time(X)) (time(X) < 9) # (time(X) < 17), (17 <= time(X)),            
-excluD = [0, 0, 0, 0, 0, 0, 0] + [-1]*(25-7) # exhaustive days
-excluM = [-1]*13 + [0]*12 # exhaustive months
-ALLOWED = gener_allowed2(exclu + exclu1 + nexclu + exclu2 + [excluD] + [excluM], len(REQ)) 
-## will find no problems !
-DENIED = exclu + exclu1 + nexclu + exclu2 + [excluD] + [excluM]
 
-table.compute_table(REQ, size, DENIED) #ALLOWED)
+### TODO relations à composer 
+days = [((0, 1, 2, 3, 4, 5, 6), [[1, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1]])]
+time = [((7, 8), [[0, 0]]), ((7, 11), [[0, 0]]), ((9, 9), [[0, 0]]), ((12, 12), [[0, 0]]), ((8, 11), [[0, 0]])]
+time += [((7, 10), [[1, 1]]), ((8, 11), [[1, 1]])] 
 
-print ("size= " + str(size) + " time= " + str(floor(process_time()-start)))
+### month: are exclusive similar to days
+
+ALLOWED = gener_allowed(days+time, len(REQ))
+#print(str(len(ALLOWED)) + " " + str(ALLOWED))
+
+table.compute_table(REQ, size, ALLOWED)
+
 # print (str(table))
-print (str(table.get_info()))
+#print (str(table.get_info()))
 #table.show()
 #table.show_problems()
 #table.check_problems(size)
@@ -154,3 +154,15 @@ print (str(table.get_info()))
 ### and time is really smaller
 
 #table.compare_problems(REQ, size)
+
+
+# #####some of the day relations OLD
+# exclu = gener_exclusive([(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), 
+#                          (2, 3), (2, 4), (2, 5), (2, 6), (3, 4), (3, 5), (3, 7), (4, 5), (4, 6), (5, 6)], len(REQ), (1, 1)) 
+# exclu1 = gener_exclusive([(9, 9), (12, 12), (8, 11)], len(REQ), (0, 0)) # # Not(0 <= time(X)) # Not(time(X) < 24) # Not(time(X) < 17) # Not(time(X) >= 24) 
+# nexclu = gener_exclusive([(7, 8), (7, 11)] , len(REQ), (0, 0)) # Not(9 <= time(X)) & Not(time(X) < 17) # Not(9 <= time(X)) & Not(time(X) <= 17)
+# exclu2 = gener_exclusive([(7, 10), (8, 11)] , len(REQ), (1, 1)) # (9 <= time(X)) (time(X) < 9) # (time(X) < 17), (17 <= time(X)),            
+# excluD = [0, 0, 0, 0, 0, 0, 0] + [-1]*(25-7) # exhaustive days
+# excluM = [-1]*13 + [0]*12 # exhaustive months
+# ALLOWED = gener_allowed2(exclu + exclu1 + nexclu + exclu2 + [excluD] + [excluM], len(REQ)) 
+

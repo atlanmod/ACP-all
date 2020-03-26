@@ -60,16 +60,11 @@ table.add_rule(And(raining, own(umbrella)), cango(outside))
 ### -------- analysis 
 size = 9
 REQ = [saturday(X), sunday(X), goodweather, raining] # dico ordering
-#ALLOWED = [[-1]*len(REQ)] # etat= 17 transitions= 18
-# ALLOWED = [[0, 0, -1, -1], [0, 1, -1, -1], [1, 0, -1, -1]] # not sunday and saturday
-# # and not both 
-# ALLOWED = [[0, 0, 0, 0], [0, 1, 0, 0], [1, 0, 0, 0],
-#            [0, 0, 1, 0], [0, 1, 1, 0], [1, 0, 1, 0],
-#            [0, 0, 0, 1], [0, 1, 0, 1], [1, 0, 0, 1]] # etat= 15 transitions= 16
-# definitions OrderedDict([(P_0(X), saturday(X)), (P_1(X), sunday(X)), (P_2(cinema), goto(cinema)), (P_3(work), goto(work)), (P_4(outside), goto(outside)), (P_5(work), doing(work)), (P_6(Y), goto(Y)), (P_7(Y), cango(Y)), (P_8(outside), cango(outside)), (P_9(home), doing(home)), (goodweather, goodweather), (raining, raining), (P_10(umbrella), own(umbrella))])
-# size= 13 REQ-pos [0, 1, 10, 11] mapping {0: 0, 1: 1, 10: 2, 11: 3}
-ALLOWED = gener_allowed2([[1, 1, -1, -1], [-1, -1, 1, 1]], 4)
-DENIED = [[1, 1, -1, -1], [-1, -1, 1, 1]]
+#ALLOWED = [[-1]*len(REQ)] 
+#ALLOWED = [[0, 0, -1, -1], [0, 1, -1, -1], [1, 0, -1, -1]] # not sunday and saturday
+ALLOWED = [[0, 0, -1, -1], [0, 1, -1, -1], [1, 0, -1, -1], 
+           [-1, -1, 0, 0], [-1, -1, 1, 0], [-1, -1, 0, 1]] # 
+
 
 # table.classify(size)
 # table.check_simplified(size)
@@ -78,7 +73,7 @@ DENIED = [[1, 1, -1, -1], [-1, -1, 1, 1]]
 # table.normalize()
 # table.compute_dnf()
 
-table.compute_table(REQ, size, DENIED) #ALLOWED) 
+table.compute_table(REQ, size, ALLOWED) 
   
 #print (str(table))
 # print (str(table.get_info()))

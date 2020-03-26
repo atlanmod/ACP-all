@@ -63,6 +63,8 @@ REQ = [(sex(X) == male), (sex(X) == female), (diabetic(X) == diab_yes), (diabeti
 
 ALLOWED = [[-1]*len(REQ)]
 
+### TODO relations possible
+
 print(str(len(REQ)))
 #======================================analysis
 start = process_time()

@@ -1,5 +1,5 @@
 # ------------------
-# 25/3/2020
+# 26/3/2020
 # Look for problems (correct requests which are undefined)
 # Check is already a problem and if already seen
 # Finally check if it is a problem add it 
@@ -12,7 +12,7 @@
 # -------------------
 ### stop at heuristic
 
-### TODO try changing ALLOWED -> DENIED
+### TODO try changing ALLOWED check
 
 from NormalizedSet import  * #@UnusedWildImport
 from PLA import * #@UnusedWildImport
@@ -49,8 +49,6 @@ class Normalized_Enumerate(NormalizedSet):
         self.MIN = 1
         # allowed Binary:REQ else unsat will contains all reductions
         self.allowed = []  
-        # TODO denied Binary:REQ
-        self.denied = []
     # --- end init
 
     # -------------------
@@ -130,16 +128,12 @@ class Normalized_Enumerate(NormalizedSet):
     # and use is_included_in to check already a problem
     # and allseen list
     # allowed : List[Binary:REQ] space for REQ variables   
-    #def enumerate(self, allowed):
-    def enumerate(self, denied): # TODO
+    def enumerate(self, allowed):
+        self.allowed = allowed
         NBREQ = len(self.REQ)
         print("definitions " + str(self.definitions))
-        # TODO display REQ and its position in Binary:REQ
-        #print("mapping to REQ " + str(self.position_to_req()))
+        # display REQ and its position in Binary:REQ
         print("Ordering REQ " + str([self.definitions[D] for D in self.REQ]))
-        # TODO
-        self.denied = minimizing(denied)
-        print("DENIED : " + str(len(self.denied)) + " / " + str(self.denied))              
         # --- tactic and binary conversion 
         self.tactic_conversion()
         #print ("real " + str(self.reverse_list_binary(self.binary)))
@@ -152,12 +146,6 @@ class Normalized_Enumerate(NormalizedSet):
         # set init as problems and display minimal ones
         self.normalized_problems = self.init_problems
         self.display_problems(1)     
-        # --------
-        # computed allowed binary
-        #self.allowed = product(allowed, allred) # define the branching Binary:REQ space to explore
-        #NO MINIMIZATION
-        #print("allowed REQ space: " + str(len(self.allowed)) + " / " + str(self.allowed))      
-        #allred = self.allowed 
         # -------
         # compute all combinations of reduction to :REQ
         elements = [] # last index of combined element
@@ -193,9 +181,9 @@ class Normalized_Enumerate(NormalizedSet):
                     common, maxi = make_common(other, binreq)
                     # check if already seen   
                     if (common and (common not in allseen)):
-                        # TODO check if not denied et put in already seen !!!
-                        print("common= " + str(common) + " denied? " + str(product([common], self.denied)))                        
-                        if (not product([common], self.denied)):
+                        # TODO check if  denied and put in already seen !!!
+                        # print("common= " + str(common) + " denied? " + str(product([common], self.allowed)))                        
+                        if (product([common], self.allowed)):
                             # check if common is included in problems
                             if (all([not is_included_in(common, X) for X in self.normalized_problems + newpbs])):
                                 renamed = self.reverse_binary_req_renamed(common) 
@@ -215,7 +203,7 @@ class Normalized_Enumerate(NormalizedSet):
                             # --- already a problem 
                             else:
                                 allseen.append(common)   
-                        # TODO --- not denied
+                        # --- allowed
                     # --- allseen   
                 # --- for J in allred  
                 I += 1
@@ -297,8 +285,8 @@ class Normalized_Enumerate(NormalizedSet):
             binreq = req_reduce(self.binary[I], self.REQB)
             # eliminate -1*
             if (sum(binreq) != -len(binreq)):
-                # TODO denied
-                if (not product([binreq], self.denied)):
+                # check if req intersect allowed
+                if (product([binreq], self.allowed)):
                     renamed = self.reverse_binary_req_renamed(binreq)
                     if (self.check_undefined_request(renamed)):
                         if (binreq not in self.init_problems):
