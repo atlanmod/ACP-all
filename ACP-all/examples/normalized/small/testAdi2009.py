@@ -1,15 +1,19 @@
 # -------------------
-# 26/3/2020
+# 31/3/2020
 # Test Adi2009 
 # -------------------
 
-from Normalized_OK import * #@UnusedWildImport
+### TODO pb import z3
+#from Normalized_OK import * #@UnusedWildImport
+from BDD import * #@UnusedWildImport
 
 # --------------------------
 Patient = DeclareSort('Patient')
 Hospital = DeclareSort('Hospital')
 
-table = Normalized_Enumerate()
+#table = Normalized_Enumerate()
+table = BDD_Build()
+
 # Variables
 table.add_variable("p", Patient)
 table.add_variable("h", Hospital)
@@ -45,7 +49,7 @@ table.add_rule(chief(h), pread(h, p)) #4
 ### -------- analysis 
 size = 5
 REQ = [nurse(h), doctor(h), sameward(h, p), chief(h)]
-#ALLOWED = [[-1]*len(REQ)] # two
+ALLOWED = [[-1]*len(REQ)] # two
 # Ordering REQ [nurse(h), doctor(h), sameward(h, p), chief(h)]
 #ALLOWED = [] # 0
 #ALLOWED = [[1, 1, 0, -1]] # two because 1 1 0 1 is common
@@ -76,3 +80,6 @@ table.show_problems()
 # S.add(ForAll(table.variables, ))
 
 #print(str(minimizing(product([[0, -1, -1, -1], [-1, 0, -1, -1], [-1, -1, 1, -1]], [[0, -1, -1, -1], [-1, -1, 1, -1], [-1, -1, -1, 0]]))))
+
+#### test BDD
+#BDD = table.convert()

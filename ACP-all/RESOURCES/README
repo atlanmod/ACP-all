@@ -12,14 +12,17 @@ but it does not remove it saved in OLDCODE
 Try new test with DENIED, take care of the place of the test
 since once eliminated it has been already seen
 No need of minimizing since we have a AND-term X DNF
+Abandon DENIED and return to ALLOWED version
+
+* 31/3/2020
+Tests BDD with pyeda 
 
 * TODO ===================
-
-TODO DENIED : def ? minimizing ?
 
 improve heuristic if non several time ?
 if newpbs included in known after simplif ?
 
+%%%% ====================
 %%%% 4/2/2020
 
 %%%% Examples and source code prototype for computing a simplified 

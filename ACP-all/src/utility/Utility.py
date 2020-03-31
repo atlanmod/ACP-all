@@ -1,5 +1,5 @@
 # ------------------------------
-# 26/3/2020
+# 30/3/2020
 # some additional utility functions
 #--------------------------
 
@@ -199,6 +199,30 @@ def product(lefts, rights):
         res = rights
     return res
 # --- product
+
+# -----------------
+# check if request intersects allowed [simpler than with product]
+# req: Binary:REQ
+# allowed: List[Binary:REQ]
+# But not better than product above 
+# return true if intersection
+def check_allowed(req, allowed):
+    size = len(req)
+    res = False
+    I = 0
+    while (I < len(allowed) and not res):
+        right = allowed[I]
+        J = 0
+        finish = False
+        while (J < size) and not finish:
+            finish = ((req[J] == 1) and (right[J] == 0)) or ((req[J] == 0) and (right[J] == 1))
+            J += 1
+        # --- while J
+        res = not finish
+        I += 1
+    # --- while I
+    return res
+# --- check_allowed
 
 # -------------
 # compute base binary of binaries in lbinary

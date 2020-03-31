@@ -1,5 +1,5 @@
 # -------------------
-# 26/3/2020
+# 27/3/2020
 # example RBSIM needs predicates not PROP!
 # # # R23
 # table.add_rule(AGE < 67, Not(Retired))
@@ -239,51 +239,3 @@ table.compute_table(REQ, size, ALLOWED)
 # print (str(table.get_info()))
 table.show_problems()
 # table.check_problems(size)
-
-### TODO patine ? V1= time= 1117
-# 12/3/2020 but allowed wrong but give a "maximal idea"
-# GREEN nodes= 13 ---------- build finished now collecting 1106
-# count= 36240
-# count= 82553
-# count= 90310
-# count= 106493
-# count= 72463
-# count= 283230
-# count= 9222
-# count= 53229
-# count= 25997
-# count= 4
-# count= 3
-# count= 5
-# count= 6
-# etat= 416714 transitions= 698750 #  time= 1908
-#### avec ALLOWED better
-# GREEN nodes= 12 ---------- build finished now collecting 79
-# count= 3121
-# count= 6277
-# count= 6747
-# count= 8003
-# count= 5557
-# count= 20851
-# count= 4023
-# count= 4023
-# count= 4
-# count= 3
-# count= 5
-# count= 6
-# etat= 30905 transitions= 51124 #  time= 99
-#### with find_well
-# GREEN nodes= 12 ---------- build finished now collecting 86
-# count= 2940
-# count= 6070
-# count= 6572
-# count= 7828
-# count= 5394
-# count= 20678
-# count= 3967
-# count= 3967
-# count= 4
-# count= 3
-# count= 5
-# count= 6
-# etat= 30905 transitions= 51124  time= 106

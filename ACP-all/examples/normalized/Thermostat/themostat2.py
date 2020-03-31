@@ -1,9 +1,11 @@
 # -------------------
-# 26/3/2020
+# 27/3/2020
 ## inpired from termostat control system in
 # Logical Foundations for Rule-Based Systems De Antoni Ligeza
 # or in papers from G. Nalepa
 # -------------------
+
+### TODO version des unsafe avec ALLOWED 
 
 from Normalized_OK import * #@UnusedWildImport
 
@@ -72,10 +74,55 @@ table.add_rule(And(season(X, winter), operation(X)), settemp(X, 25)) #R17
 table.add_rule(And(season(X, winter), Not(operation(X))), settemp(X, 20)) #R18
 #### ---------------
 
+# ### add some explicit unsafe rules for exclusion (21)
+# table.add_rule(And(monday(X), tuesday(X)), False)
+# table.add_rule(And(monday(X), wednesday(X)), False)
+# table.add_rule(And(monday(X), thursday(X)), False)
+# table.add_rule(And(monday(X), friday(X)), False)
+# table.add_rule(And(monday(X), saturday(X)), False)
+# table.add_rule(And(monday(X), sunday(X)), False)
+# table.add_rule(And(tuesday(X), wednesday(X)), False)
+# table.add_rule(And(tuesday(X), thursday(X)), False)
+# table.add_rule(And(tuesday(X), friday(X)), False)
+# table.add_rule(And(tuesday(X), saturday(X)), False)
+# table.add_rule(And(tuesday(X), sunday(X)), False)
+# table.add_rule(And(wednesday(X), thursday(X)), False)
+# table.add_rule(And(wednesday(X), friday(X)), False)
+# table.add_rule(And(wednesday(X), saturday(X)), False)
+# table.add_rule(And(wednesday(X), sunday(X)), False)
+# table.add_rule(And(thursday(X), friday(X)), False)
+# table.add_rule(And(thursday(X), saturday(X)), False)
+# table.add_rule(And(thursday(X), sunday(X)), False)
+# table.add_rule(And(friday(X), saturday(X)), False)
+# table.add_rule(And(friday(X), sunday(X)), False)
+# table.add_rule(And(saturday(X), sunday(X)), False)
+# ### for seasons should imply month exclusivity ? no only for group (6)
+# table.add_rule(And(season(X, spring), season(X, summer)), False)
+# table.add_rule(And(season(X, spring), season(X, autumn)), False)
+# table.add_rule(And(season(X, spring), season(X, winter)), False)
+# table.add_rule(And(season(X, summer), season(X, autumn)), False)
+# table.add_rule(And(season(X, summer), season(X, winter)), False)
+# table.add_rule(And(season(X, autumn), season(X, winter)), False)
+# ### thus may be sufficient intra season
+# ### hence rather than 12*11/2=66 we have 4*3+6=18
+# table.add_rule(And(month(X, december), month(X, january)), False)
+# table.add_rule(And(month(X, december), month(X, february)), False)
+# table.add_rule(And(month(X, january), month(X, february)), False)
+# table.add_rule(And(month(X, march), month(X, april)), False)
+# table.add_rule(And(month(X, march), month(X, may)), False)
+# table.add_rule(And(month(X, april), month(X, may)), False)
+# table.add_rule(And(month(X, june), month(X, july)), False)
+# table.add_rule(And(month(X, june), month(X, august)), False)
+# table.add_rule(And(month(X, july), month(X, august)), False)
+# table.add_rule(And(month(X, september), month(X, october)), False)
+# table.add_rule(And(month(X, september), month(X, november)), False)
+# table.add_rule(And(month(X, october), month(X, november)), False)
+# # ----
+#size =  18 + 21 + 18 # = 57
+
 ### -------- analysis 
 start = process_time()
 size = 18 
-#size =  18 + 21 + 18 # = 57
 
 REQ = [monday(X), tuesday(X), wednesday(X), thursday(X), friday(X), saturday(X), sunday(X), #[0 .. 6]
     (time(X) >= 9),  (time(X) < 17), (time(X) >= 0), (time(X) < 9), (time(X) >= 17), (time(X) < 24), #[7 .. 12]
@@ -84,19 +131,26 @@ REQ = [monday(X), tuesday(X), wednesday(X), thursday(X), friday(X), saturday(X),
          month(X, november)] # [13 .. 24]
 # Ordering REQ [monday(X), tuesday(X), wednesday(X), thursday(X), friday(X), saturday(X), sunday(X), time(X) >= 9, time(X) < 17, time(X) >= 0, time(X) < 9, time(X) >= 17, time(X) < 24, month(X, january), month(X, february), month(X, december), month(X, march), month(X, april), month(X, may), month(X, june), month(X, july), month(X, august), month(X, september), month(X, october), month(X, november)]
 
-#ALLOWED = [[-1]*len(REQ)] #
-
 ### relations à composer 
 days = [((0, 1, 2, 3, 4, 5, 6), [[1, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1]])]
 time = [((7, 8), [[0, 0]]), ((7, 11), [[0, 0]]), ((9, 9), [[0, 0]]), ((12, 12), [[0, 0]]), ((8, 11), [[0, 0]])]
 time += [((7, 10), [[1, 1]]), ((8, 11), [[1, 1]])] 
+month = [((0,1,2,3,4,5,6,7,8,9,10,11), [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                        [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                                        [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+                                        [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+                                        [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+                                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]])]
+season = [((0, 1, 2, 3), [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])]
 
-### TODO voir aussi replace unsafe explicit
-
-### month: are exclusive similar to days
-
-ALLOWED = gener_allowed(days+time, len(REQ))
+ALLOWED = gener_allowed(days+time+season+month, len(REQ))
 #print(str(len(ALLOWED)) + " " + str(ALLOWED))
+ALLOWED = minimizing(ALLOWED) 
+# => level=3 pb=0 time=4 / level=4 pb=0 time=15 / level=5 pb=0 time=48
+# final level=14 pb=0 time=516 better until now
+#print(str(len(ALLOWED)) + " " + str(ALLOWED))
+
+#ALLOWED = [[-1]*len(REQ)] # => level=3 pb=13 time=6 / level=4 pb=13 time=38 / level=5 pb=13 time=181
 
 table.compute_table(REQ, size, ALLOWED)
 
@@ -105,21 +159,4 @@ table.compute_table(REQ, size, ALLOWED)
 #table.show()
 #table.show_problems()
 #table.check_problems(size)
-
-### many explicit unsafe not too much a problem since
-### eliminated by the initial_problems
-### and time is really smaller
-
-#table.compare_problems(REQ, size)
-
-
-# #####some of the day relations OLD
-# exclu = gener_exclusive([(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), 
-#                          (2, 3), (2, 4), (2, 5), (2, 6), (3, 4), (3, 5), (3, 7), (4, 5), (4, 6), (5, 6)], len(REQ), (1, 1)) 
-# exclu1 = gener_exclusive([(9, 9), (12, 12), (8, 11)], len(REQ), (0, 0)) # # Not(0 <= time(X)) # Not(time(X) < 24) # Not(time(X) < 17) # Not(time(X) >= 24) 
-# nexclu = gener_exclusive([(7, 8), (7, 11)] , len(REQ), (0, 0)) # Not(9 <= time(X)) & Not(time(X) < 17) # Not(9 <= time(X)) & Not(time(X) <= 17)
-# exclu2 = gener_exclusive([(7, 10), (8, 11)] , len(REQ), (1, 1)) # (9 <= time(X)) (time(X) < 9) # (time(X) < 17), (17 <= time(X)),            
-# excluD = [0, 0, 0, 0, 0, 0, 0] + [-1]*(25-7) # exhaustive days
-# excluM = [-1]*13 + [0]*12 # exhaustive months
-# ALLOWED = gener_allowed2(exclu + exclu1 + nexclu + exclu2 + [excluD] + [excluM], len(REQ)) 
 

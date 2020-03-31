@@ -1,5 +1,5 @@
 # ------------------
-# 26/3/2020
+# 30/3/2020
 # Look for problems (correct requests which are undefined)
 # Check is already a problem and if already seen
 # Finally check if it is a problem add it 
@@ -11,8 +11,6 @@
 # add sort allred
 # -------------------
 ### stop at heuristic
-
-### TODO try changing ALLOWED check
 
 from NormalizedSet import  * #@UnusedWildImport
 from PLA import * #@UnusedWildImport
@@ -160,8 +158,8 @@ class Normalized_Enumerate(NormalizedSet):
         # compute all combinations of reductions
         heuristic = False
         # stop at heuristic
-        #while (combinations and not heuristic):
-        while (combinations): # total 
+        while (combinations and not heuristic):
+        #while (combinations): # total 
             print (">>>>> starting level= " + str(level) + " size= " + str(len(combinations)) + " #allseen= " + str(len(allseen)))
             if (prev > 0):
                 print(" vitesse " + str(len(combinations)/prev))
@@ -181,7 +179,7 @@ class Normalized_Enumerate(NormalizedSet):
                     common, maxi = make_common(other, binreq)
                     # check if already seen   
                     if (common and (common not in allseen)):
-                        # TODO check if  denied and put in already seen !!!
+                        # check if  denied and put in already seen 
                         # print("common= " + str(common) + " denied? " + str(product([common], self.allowed)))                        
                         if (product([common], self.allowed)):
                             # check if common is included in problems
@@ -215,7 +213,6 @@ class Normalized_Enumerate(NormalizedSet):
             self.final_clean(level, newpbs)
             ### heuristic no new problem old test
             #if (not newpbs) and (not self.Hresult) and self.normalized_problems
-            # TODO can use a solver but not sure it is better
             print("measures " + str(measure(self.Hresult)) + " =?= " + str(measure(self.normalized_problems)))
             print("length " + str(len(self.Hresult)) + " =?= " + str(len(self.normalized_problems)))
             if (len(self.Hresult) == len(self.normalized_problems)): # compute heuristic

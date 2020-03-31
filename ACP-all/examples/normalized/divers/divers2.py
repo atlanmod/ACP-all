@@ -3,10 +3,9 @@
 # test simple
 # -------------------
 
-
-
 ### -------------
 from Normalized_OK import * #@UnusedWildImport
+from operator import xor
 
 Person = DeclareSort('Person')
 String = DeclareSort('String')
@@ -440,7 +439,7 @@ ALLOWED = [[-1, -1, -1, -1, -1, -1]]
 
 # # --------- analysis
 
-table.compute_table(REQ, size, ALLOWED) #, NOTRELREQ)  
+#table.compute_table(REQ, size, ALLOWED) #, NOTRELREQ)  
  
 # print (str(table.get_info()))
 # #table.show()
@@ -448,54 +447,5 @@ table.show_problems()
 # table.check_problems(size)
 # # #print (str(table))
 
-#print(str(table.check_undefined(Exists(table.variables, And(D1(X), D2(Y))), size))) ### sat 
-#print(str(table.check_undefined_request(And(P_1(X), P_3(Y)))))
-#### EX14 ok
-# print(str(table.check_undefined(Exists(table.variables, And(D2(Y), Not(Y <= 0))), size))) # unsat
-# print(str(table.check_undefined(Exists(table.variables, And(Not(Y < 0), D2(Y), Not(Y <= 0))), size))) # unsat
-#print(str(table.check_undefined(Exists(table.variables, And(D2(Y), Not(Y < 0))), size))) # sat
-# print(str(table.check_undefined(Exists(table.variables, And(D1(X), D2(Y))), size))) #sat
-#print(str(table.check_undefined(Exists(table.variables, And(D2(Y), Y < 0)), size))) # sat
-# print(str(table.check_undefined(Exists(table.variables, And(D(X) <= 3, D(X) >=2)), size))) # EX15a unsat it is a PROBLEM
-#print(str(table.check_undefined(Exists(table.variables, And(D(X) >= 2, DI(X) < 5)), size))) # EX15d unsat it is a PROBLEM
-#print(str(table.check_undefined(Exists(table.variables, And(D3(X), D4(X), D5(X), D6(X))), size))) # EX9 unsat
+########## TESTS =================
 
-# #### 
-# normalEx8a = Or(And(D1(X), Not(D3(X)), D2(X)), And(D1(X), Not(D2(X)), Not(D4(X))), And(D1(X), Not(D3(X)), Not(D4(X))))
-# shannonEx8a = Or(And(D1(X), Not(D3(X)), D2(X)), And(D1(X), Not(D3(X)), Not(D2(X)), Not(D4(X))), And(D1(X), D3(X), Not(D2(X))))
-#   Ex9   OK equiv
-# normal = Or(And( D3(X), D4(X), D5(X), D6(X)), And(D1(X), D2(X)))
-# shannon = Or(And(Not(D1(X)), D3(X), D4(X), D5(X), D6(X)), And(Not(D2(X)), D3(X), D4(X), D5(X), D6(X)), And(D1(X), D2(X)))
-# 
-# S = Solver()
-# S.add(Exists(Y, And(Y < 0, Y > 0)))
-# print (str(S.check())) # unsat
-# S.reset()
-# S.add(Exists(table.variables, shannon))
-# S.add(ForAll(table.variables, Not(normal)))
-# print ("=> " + str(S.check()))
-# S.reset()
-# S.add(Exists(table.variables, normal))
-# S.add(ForAll(table.variables, Not(shannon)))
-# print ("<=  " + str(S.check())) # unsat
-
-#print(str(make_common([1, -1, -1, -1], [-1, 1, 1, -1])))
-# print(str(make_and([1, -1, -1, -1], [-1, 1, 1, -1])))
-# print(str(make_and([0, -1, -1, -1], [0, -1, -1, -1]))) 
-
-##print(str(negate([1, 1, -1]))) no
-# print(str(complement([1, 1, -1]))) # [[0, -1, -1], [-1, 0, -1]]
-# print(str(complement([-1, 0, 1]))) # [[-1, 1, -1], [-1, -1, 0]]
-# print(str(product([[-1, 1, -1], [-1, -1, 0]], [[0, -1, -1], [-1, 0, -1]])))
-# [[0, 1, -1], [0, -1, 0], [-1, 0, 0]]
-
-#### arguments is a DNF of the denied 
-# allowed = gener_allowed2([[1, 1, -1, -1], [-1, -1, 1, 1]], 4)
-# print(str(allowed))
-# print(str(product([[1, 0, 0, 1]], allowed))) # OK
-# print(str(product([[1, 1, 0, 1]], allowed))) # NOK
-
-# allowed = gener_allowed2([[1, -1, -1], [-1, 0, -1]], 3) # [0, 1, -1]
-# print(str(allowed))
-# print(str(product([[1, 0, -1]], allowed))) # []
-# print(str(product([[0, 1, -1]], allowed))) # OK

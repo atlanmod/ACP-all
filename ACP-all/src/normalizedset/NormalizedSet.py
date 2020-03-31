@@ -5,6 +5,8 @@
 # using some basic tactics from Z3 and a binary conversion to List[1/0/-1]=Binary
 # -------------------
 
+### TODO prime -> minimizing
+
 # TODO optim binary computation with bit array ?
 
 from Renaming import * #@UnusedWildImport
