@@ -3,7 +3,8 @@
 # CONTINUE A from test.tspass
 # -------------------
 
-from Normalized_OK import * #@UnusedWildImport
+#from Normalized_BDD import * #@UnusedWildImport
+from BDDFromZ3 import * #@UnusedWildImport
 
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
@@ -12,7 +13,8 @@ from math import * #@UnusedWildImport
 Subject = DeclareSort('Subject')
 Resource = DeclareSort('Resource')
 
-table = Normalized_Enumerate()
+#table = Normalized_Enumerate()
+table = BDD_Build()
 #table = Enumerate()
 # Variables
 table.add_variable("R", Resource)
@@ -264,7 +266,7 @@ size = 47 # without
 #### with few explicit unsafe representing disjunction
 #size = 167 # 47+ 120 
 
-table.compute_table(REQ, size, ALLOWED)
+#table.compute_table(REQ, size, ALLOWED)
 # print ("size = " + str(size) + " time = " + str(floor(process_time()-start)))
 # #print (str(table))
 # print (str(table.get_info()))
@@ -272,4 +274,14 @@ table.compute_table(REQ, size, ALLOWED)
 #table.check_problems(size)
 
 #table.compare_problems(REQ, size)
+
+#### test BDD
+table.classify(size)
+table.check_simplified(size)
+table.parse_rules()
+table.set_REQ(REQ)
+start = process_time()
+BDD = table.convert()
+print ("time to BDD " + str(floor(process_time()-start)))
+print(str(BDD.to_dot()))
 

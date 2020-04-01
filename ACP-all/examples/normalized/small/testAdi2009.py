@@ -3,16 +3,15 @@
 # Test Adi2009 
 # -------------------
 
-### TODO pb import z3
 #from Normalized_OK import * #@UnusedWildImport
-from BDD import * #@UnusedWildImport
+from Normalized_BDD import * #@UnusedWildImport
 
 # --------------------------
 Patient = DeclareSort('Patient')
 Hospital = DeclareSort('Hospital')
 
 #table = Normalized_Enumerate()
-table = BDD_Build()
+table = Normalized_BDD()
 
 # Variables
 table.add_variable("p", Patient)
@@ -66,7 +65,7 @@ ALLOWED = [[-1]*len(REQ)] # two
 
 table.compute_table(REQ, size, ALLOWED)
   
-#print (str(table))
+print (str(table))
 #print (str(table.get_info()))
 #table.show()
 #print(str(table.normalized_problems))
@@ -75,11 +74,4 @@ table.show_problems()
 #table.check_problems(size)
 
 #### tests ======================
-#print(str(product([[-1, -1, -1]], [[1, 0, 1], [-1, 0, 1]])))
-# S = Solver()
-# S.add(ForAll(table.variables, ))
 
-#print(str(minimizing(product([[0, -1, -1, -1], [-1, 0, -1, -1], [-1, -1, 1, -1]], [[0, -1, -1, -1], [-1, -1, 1, -1], [-1, -1, -1, 0]]))))
-
-#### test BDD
-#BDD = table.convert()

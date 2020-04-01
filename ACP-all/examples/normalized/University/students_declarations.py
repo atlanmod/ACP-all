@@ -6,7 +6,8 @@
 ### Try to encode all relations even unecessary hierarchy
 # -----------------
 
-from Normalized_OK import * #@UnusedWildImport
+#from Normalized_BDD import * #@UnusedWildImport
+from BDDFromZ3 import * #@UnusedWildImport
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
 
@@ -15,7 +16,8 @@ Person = DeclareSort('Person')
 Resource = DeclareSort('Resource')
 Time = DeclareSort('Time')
 
-table = Normalized_Enumerate()
+#table = Normalized_Enumerate()
+table = BDD_Build()
 #table = Enumerate()
 # Variables
 table.add_variable("X", Person)

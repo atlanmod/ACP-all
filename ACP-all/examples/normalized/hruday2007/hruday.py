@@ -70,7 +70,7 @@ print(str(len(REQ)))
 start = process_time()
 size = 11+3+7+6+10+16+13+12+7+19  # total = 104
 
-table.compute_table(REQ, size, ALLOWED)
+#table.compute_table(REQ, size, ALLOWED)
 # number of stored 93
 # number of unsafes 11
 # number of normalized store 93
@@ -86,5 +86,32 @@ table.compute_table(REQ, size, ALLOWED)
 #table.check_problems(size)
 
 #table.compare_problems(size, REQ)
+#### test BDD
+table.classify(size)
+table.check_simplified(size)
+table.parse_rules()
+table.set_REQ(REQ)
+start = process_time()
+#BDD = table.convert()
+#print ("time to BDD " + str(floor(process_time()-start)))
+#print(str(BDD.to_dot()))
+
+
+### test conversion 
+table.VARS = bddvars('VARS', len(table.definitions))
+table.KEYS = list(table.definitions.keys()) 
+# binary = [-1]*len(table.REQ) if empty ???
+binary = [1]*len(table.REQ) # 0s
+#binary = [0]*len(table.REQ) # 0s
+binary = [1, 0, 0, 1, 0, 1, 0, -1, -1, 0, 1, 0] + [-1]*(len(table.REQ) - 12) # 0s
+tmp = []
+for I in range(len(table.REQ)):
+    if (binary[I] == 0):
+        tmp.append(table.VARS[I].__invert__())
+    elif   (binary[I] == 1):
+        tmp.append(table.VARS[I])
+res = reduce(lambda a,b: a.__and__(b), tmp)
+print ("conversion time  " + str(floor(process_time()-start)))
+print(str(res.to_dot()))
 
 

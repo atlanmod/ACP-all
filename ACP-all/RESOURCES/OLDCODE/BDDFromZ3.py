@@ -3,6 +3,8 @@
 # Use BDD from pyeda
 # ----------------------
 
+### essai traduction renamed
+
 from pyeda.inter import * #@UnusedWildImport
 from functools import reduce 
 from pyeda.boolalg.bdd import BDDNODEONE, BDDNODEZERO
@@ -15,9 +17,10 @@ class BDD_Build(Normalized_Enumerate):
     # init constructor 
     def __init__(self):
         super().__init__()
-        #### creation des variables
-        self.VARS = self.bddvars('VARS', len(self.definitions))
-        self.KEYS = list(self.definitions.keys())
+        #### for BDD variables
+        self.VARS = [] 
+        #### index of these variables in definitions
+        self.KEYS = [] 
     # ---
 
     # ---------------
@@ -26,9 +29,11 @@ class BDD_Build(Normalized_Enumerate):
     def convert_BDD (self, exp):
         #print("rule= " + str(exp))
         if isinstance(exp, bool):
-            if (exp.is_true()):
+            #if (exp.is_true()):
+            if (exp == True):
                 return BDDNODEONE
-            elif (exp.is_false()):
+            #elif (exp.is_false()):
+            else:
                 return BDDNODEZERO
         elif (is_expr(exp)):
             if (is_app(exp)):
@@ -57,8 +62,12 @@ class BDD_Build(Normalized_Enumerate):
 
     # -----------------
     # convert the renamed rules in a BDD
+    # should be done after processing REQ
     # return a BDD
     def convert(self):
+        self.VARS = bddvars('VARS', len(self.definitions))
+        self.KEYS = list(self.definitions.keys()) 
+        print("KEYS" + str(self.KEYS))
         return reduce(lambda a,b: a.__and__(b), [self.convert_BDD(R) for R in self.renamed])
     # --- convert
     

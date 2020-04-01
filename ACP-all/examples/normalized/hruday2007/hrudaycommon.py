@@ -7,7 +7,8 @@
 
 ### resort it
 
-from Normalized_OK import * #@UnusedWildImport
+#from Normalized_BDD import * #@UnusedWildImport
+from BDDFromZ3 import * #@UnusedWildImport
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
 
@@ -25,7 +26,8 @@ Status = DeclareSort('Status') #p
 Pregnant = DeclareSort('Pregnant') #p
 Cp_duration = DeclareSort('Cp_duration') #p
 
-table = Normalized_Enumerate()
+#table = Normalized_Enumerate()
+table = BDD_Build()
 # Variables
 table.add_variable("X", Patient)
 

@@ -160,3 +160,61 @@ BDD = reduce(lambda a,b: a.__and__(b), [convert_BDD(list(table.definitions.keys(
 #BDD = convert_BDD(list(table.definitions.keys()), list(table.definitions.keys())[5])
 #BDD = convert_BDD(list(table.definitions.keys()), Or(Not(list(table.definitions.keys())[5]), list(table.definitions.keys())[0]))
 print(str(BDD.to_dot()))
+
+
+# #table.compare_problems(size, REQ)
+# #### test BDD
+# table.classify(size)
+# table.check_simplified(size)
+# table.parse_rules()
+# table.set_REQ(REQ)
+# start = process_time()
+# #BDD = table.convert()
+# #print ("time to BDD " + str(floor(process_time()-start)))
+# #print(str(BDD.to_dot()))
+# 
+# 
+# ### test conversion 
+# table.VARS = bddvars('VARS', len(table.definitions))
+# table.KEYS = list(table.definitions.keys()) 
+# # binary = [-1]*len(table.REQ) if empty ???
+# binary = [1]*len(table.REQ) # 0s
+# #binary = [0]*len(table.REQ) # 0s
+# binary = [1, 0, 0, 1, 0, 1, 0, -1, -1, 0, 1, 0] + [-1]*(len(table.REQ) - 12) # 0s
+# tmp = []
+# for I in range(len(table.REQ)):
+#     if (binary[I] == 0):
+#         tmp.append(table.VARS[I].__invert__())
+#     elif   (binary[I] == 1):
+#         tmp.append(table.VARS[I])
+# res = reduce(lambda a,b: a.__and__(b), tmp)
+# print ("conversion time  " + str(floor(process_time()-start)))
+# print(str(res.to_dot()))
+
+#print(str(minimizing(product([[0, -1, -1, -1], [-1, 0, -1, -1], [-1, -1, 1, -1]], [[0, -1, -1, -1], [-1, -1, 1, -1], [-1, -1, -1, 0]]))))
+# table.convert2BDD([1, 0, -1, 1, 0])
+bdd1 = table.convert2BDD([0, 1, 1, 0])
+# bdd2 = table.convert2BDD([-1, 0, -1, -1])
+# #bdd = bdd1 | bdd2 ### seems to works
+# bdd = bdd1.__or__(bdd2) ### idem
+# print(str(bdd.to_dot()))
+# bdd = table.convert_or([[0, -1, -1, -1], [-1, 0, -1, -1], [-1, -1, 1, -1], [0, -1, -1, -1]])
+print(str(bdd1.satisfy_count()) + " " + str(bdd1.satisfy_one())) ### because of and-term only one
+### thus translation into renamed will be simple
+var0 = list(bdd1.satisfy_one().keys())[3]
+print(str(type(var0)) + " " + str(var0.indices)) # <class 'pyeda.boolalg.bdd.BDDVariable'>
+### and indices seems that
+#print(str(type(table.VARS))) # <class 'pyeda.boolalg.bfarray.farray'>
+#print(str(table.VARS[2].uniqid))
+table.bdd2renamed(bdd1)
+# table.bdd2renamed(bdd1)
+# from pyeda.inter import *
+# print(str(isinstance(BDDNODEONE, BinaryDecisionDiagram))) # False
+# #print(str(bdd1.box(0).is_zero())) # TRUE
+# print(str(BinaryDecisionDiagram.box(0).is_zero())) # TRUE
+# print(str(isinstance(BinaryDecisionDiagram.box(0), BinaryDecisionDiagram))) # TRUE
+# print(str(table.convert_or(ALLOWED).to_dot())) # graph BDD { n4534798544 [label=1,shape=box]; }
+# print(str(table.convert_or([]).to_dot())) # graph BDD { n4421095312 [label=0,shape=box]; }
+# print(str(table.convert2BDD([-1]*4).to_dot()))
+# print(str(table.convert2BDD([-1]*4).is_one())) # TRUE
+#print(str(bdd2.inputs)) # (VARS[1],)

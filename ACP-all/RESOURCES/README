@@ -15,9 +15,13 @@ No need of minimizing since we have a AND-term X DNF
 Abandon DENIED and return to ALLOWED version
 
 * 31/3/2020
-Tests BDD with pyeda 
+Tests BDD with pyeda : global build from renamed too costly
+but for AND-term this seems possible
+Normalized_BDD TODO
 
 * TODO ===================
+
+TODO ATTENTION interaction pyeda and Z3 with Function
 
 improve heuristic if non several time ?
 if newpbs included in known after simplif ?
