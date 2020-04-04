@@ -17,6 +17,7 @@ from PLA import * #@UnusedWildImport
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
 from Enumerate import * #@UnusedWildImport
+from time import process_time
 
 # --------------------------
 # Class for Iterative_hashing method 
@@ -313,7 +314,9 @@ class Normalized_Enumerate(NormalizedSet):
         # add as problems and simplify
         self.Hresult = self.normalized_problems.copy() # To store it and check change
         self.normalized_problems.extend(newpbs)
+        start = process_time()
         self.normalized_problems = minimizing(self.normalized_problems)
+        print (str(len(self.normalized_problems)) + " minimizing time= " + str(floor(process_time()-start)))
         # display the new ones found at this level
         self.display_problems(level)
     # --- final_clean

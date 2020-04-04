@@ -1,5 +1,5 @@
 # -------------------
-# 27/3/2020
+# 2/4/2020
 # GoodShow p255 Sasikumar2007
 # -------------------
 # -----------------
@@ -96,6 +96,9 @@ REQ = [dimension_problem(X),   picture_size_abnormal(X), brightness_problem(X), 
        (type_of_colour_problem(X) == colour_patch),              (TV_age(X) >= 8)]
 
 ALLOWED = [[-1]*len(REQ)]
+
+### TODO may peut-etre des unsat
+
 # #======================================analysis
 start = process_time()
 size = 3+13+5+14+33 # (Total= 68)
@@ -105,7 +108,7 @@ table.compute_table(REQ, size, ALLOWED)
       
 # #print (str(table))
 # print (str(table.get_info()))
-# table.show_problems()
+table.show_problems()
 # table.check_problems(size)
   
 #table.compare_problems(size, REQ)

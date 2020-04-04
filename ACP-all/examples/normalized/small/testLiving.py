@@ -3,7 +3,8 @@
 # Test Living from  http://hssc.sla.mdx.ac.uk/staffpages/rvb/teaching/BIS3226/hand03.pdf
 # -------------------
 
-from Normalized_OK import * #@UnusedWildImport
+#from Normalized_OK import * #@UnusedWildImport
+from Normalized_BDD import * #@UnusedWildImport
 
 # a notion of day and also of permission
 # IF   saturday OR sunday                     THEN   go to cinema
@@ -21,7 +22,8 @@ Activity = DeclareSort('Activity')
 Object = DeclareSort('Object')
 Weather = DeclareSort('Weather')
 
-table = Normalized_Enumerate()
+#table = Normalized_Enumerate()
+table = Normalized_BDD()
 # Variables
 table.add_variable("X", Day)
 table.add_variable("Y", Activity)

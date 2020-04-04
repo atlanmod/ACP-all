@@ -1,5 +1,5 @@
 # -------------------
-# 25/3/2020
+# 2/4/2020
 # RBAC1 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### Try to encode all relations even unecessary hierarchy
@@ -123,35 +123,35 @@ ALLOWED = [[-1]*len(REQ)]
 # RBAC1: 9 administrative + 9 revoke + 25 + 70 (113 rules)
 size =  113
 
-#table.compute_table(REQ, size, ALLOWED) 
-#table.show_problems()
+table.compute_table(REQ, size, ALLOWED) 
+table.show_problems()
 
-### REQB=121 REQ=43 
-#### test BDD
-table.classify(size)
-table.check_simplified(size)
-table.parse_rules()
-table.set_REQ(REQ)
-start = process_time()
-#BDD = table.convert()
-#print ("time to BDD " + str(floor(process_time()-start)))
-#print(str(BDD.to_dot()))
+# ### REQB=121 REQ=43 
+# #### test BDD
+# table.classify(size)
+# table.check_simplified(size)
+# table.parse_rules()
+# table.set_REQ(REQ)
+# start = process_time()
+# #BDD = table.convert()
+# #print ("time to BDD " + str(floor(process_time()-start)))
+# #print(str(BDD.to_dot()))
 
 
-### test conversion 
-table.VARS = bddvars('VARS', len(table.definitions))
-table.KEYS = list(table.definitions.keys()) 
-# binary = [-1]*len(table.REQ) if empty ???
-#binary = [1]*len(table.REQ) # 0s
-#binary = [0]*len(table.REQ) # 0s
-binary = [1, 0, 0, 1, 0, 1, 0, -1, -1, 0, 1, 0] + [-1]*(len(table.REQ) - 12) # 0s
-tmp = []
-for I in range(len(table.REQ)):
-    if (binary[I] == 0):
-        tmp.append(table.VARS[I].__invert__())
-    elif   (binary[I] == 1):
-        tmp.append(table.VARS[I])
-res = reduce(lambda a,b: a.__and__(b), tmp)
-print ("conversion time  " + str(floor(process_time()-start)))
-print(str(res.to_dot()))
+# ### test conversion 
+# table.VARS = bddvars('VARS', len(table.definitions))
+# table.KEYS = list(table.definitions.keys()) 
+# # binary = [-1]*len(table.REQ) if empty ???
+# #binary = [1]*len(table.REQ) # 0s
+# #binary = [0]*len(table.REQ) # 0s
+# binary = [1, 0, 0, 1, 0, 1, 0, -1, -1, 0, 1, 0] + [-1]*(len(table.REQ) - 12) # 0s
+# tmp = []
+# for I in range(len(table.REQ)):
+#     if (binary[I] == 0):
+#         tmp.append(table.VARS[I].__invert__())
+#     elif   (binary[I] == 1):
+#         tmp.append(table.VARS[I])
+# res = reduce(lambda a,b: a.__and__(b), tmp)
+# print ("conversion time  " + str(floor(process_time()-start)))
+# print(str(res.to_dot()))
 

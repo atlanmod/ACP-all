@@ -1,11 +1,13 @@
 # -------------------
-# 26/3/2020
+# 2/4/2020
 ## inpired from termostat control system in
 # Logical Foundations for Rule-Based Systems De Antoni Ligeza
 # or in papers from G. Nalepa
 # -------------------
 
-from Normalized_OK import * #@UnusedWildImport
+#from Normalized_OK import * #@UnusedWildImport
+#from Normalized_BDD import * #@UnusedWildImport
+from BDDFromZ3 import * #@UnusedWildImport
 
 # --------------------------
 Day = DeclareSort('Day')
@@ -13,7 +15,9 @@ Weather = DeclareSort('Weather')
 Season = DeclareSort('Season')
 Month = DeclareSort('Month')
 
-table = Normalized_Enumerate()
+#table = Normalized_Enumerate()
+# table = Normalized_BDD()
+table = BDD_Build()
 # Variables
 table.add_variable("X", Day)
 X = table.get_variable(0)
@@ -98,7 +102,7 @@ time += [((7, 10), [[1, 1]]), ((8, 11), [[1, 1]])]
 ALLOWED = gener_allowed(days+time, len(REQ))
 #print(str(len(ALLOWED)) + " " + str(ALLOWED))
 
-table.compute_table(REQ, size, ALLOWED)
+#table.compute_table(REQ, size, ALLOWED)
 
 # print (str(table))
 #print (str(table.get_info()))
@@ -111,6 +115,16 @@ table.compute_table(REQ, size, ALLOWED)
 ### and time is really smaller
 
 #table.compare_problems(REQ, size)
+
+#### ========= test BDD
+table.classify(size)
+table.check_simplified(size)
+table.parse_rules()
+table.set_REQ(REQ)
+start = process_time()
+BDD = table.convert()
+print ("time to BDD " + str(floor(process_time()-start)))
+#print(str(BDD.to_dot()))
 
 
 # #####some of the day relations OLD

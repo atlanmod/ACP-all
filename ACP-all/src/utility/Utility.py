@@ -1,7 +1,12 @@
 # ------------------------------
-# 30/3/2020
+# 3/4/2020
 # some additional utility functions
 #--------------------------
+
+### Hack for Fixing error pydev on PATH
+import os
+os.environ['PATH'] = '/usr/local/sbin:/bin:/usr/bin:/usr/local/bin'
+print(str(os.get_exec_path())) # ['/usr/local/sbin', '/bin', '/usr/bin', '/usr/local/bin']
 
 from z3 import * #@UnusedWildImport
 from z3.z3util import * #@UnusedWildImport

@@ -1,13 +1,12 @@
 # -------------------
-# 23/3/2020
+# 2/4/2020
 # RBAC1 from http://www3.cs.stonybrook.edu/~stoller/ccs2007/
 # -------------------
 ### Student part only 
 ### Try to encode all relations even unecessary hierarchy
 # -----------------
 
-#from Normalized_BDD import * #@UnusedWildImport
-from BDDFromZ3 import * #@UnusedWildImport
+from Normalized_BDD import * #@UnusedWildImport
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
 
@@ -17,7 +16,7 @@ Resource = DeclareSort('Resource')
 Time = DeclareSort('Time')
 
 #table = Normalized_Enumerate()
-table = BDD_Build()
+table = Normalized_BDD()
 #table = Enumerate()
 # Variables
 table.add_variable("X", Person)

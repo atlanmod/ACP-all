@@ -1,5 +1,5 @@
 # -------------------
-# 23/3/2020
+# 2/4/2020
 # GoodShow p 259 Sasikumar2007
 # -------------------
 # common type and predicates 
@@ -8,7 +8,8 @@
 # level 0 attributes are variables ?
 # -----------------
 
-from Normalized_OK import * #@UnusedWildImport
+#from Normalized_OK import * #@UnusedWildImport
+from Normalized_BDD import * #@UnusedWildImport
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
 
@@ -19,7 +20,8 @@ Type_of_colour_problem = DeclareSort('Type_of_colour_problem')
 Type_of_raster = DeclareSort('Type_of_raster')
 Faulty_module_type = DeclareSort('Faulty_module_type')
 
-table = Normalized_Enumerate()
+#table = Normalized_Enumerate()
+table = Normalized_BDD()
 # Variables
 table.add_variable('X', TV)
 X = table.get_variable(0)

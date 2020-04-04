@@ -1,12 +1,13 @@
 # -------------------
-# 26/3/2020
+# 2/4/2020
 # cashpoint from Nalepa2008
 # -------------------
 #### clearly a straight translation not the simpler possible specification
 #### -------
 
-
-from Normalized_OK import * #@UnusedWildImport
+#from Normalized_OK import * #@UnusedWildImport
+#from Normalized_BDD import * #@UnusedWildImport
+from BDDFromZ3 import * #@UnusedWildImport
 
 # --------------------------
 User = DeclareSort('User')
@@ -15,7 +16,9 @@ Option = DeclareSort('Option')
 CashpointActivity = DeclareSort('CashpointActivity')
 Time = DeclareSort('Time')
 
-table = Normalized_Enumerate()
+#table = Normalized_Enumerate()
+#table = Normalized_BDD()
+table = BDD_Build()
 # Variables
 table.add_variable("U", User)
 table.add_variable("C", CashPoint)
@@ -111,7 +114,7 @@ combinations = [[-1, 0], [0, -1]]
 ### remove last
 
 ALLOWED = gener_allowed([([0,1], combinations), ([2,3], combinations), ([4,5], combinations)], len(REQ)) 
-### remove all
+### remove all PBs
 
 table.compute_table(REQ, size, ALLOWED) 
     
@@ -130,3 +133,14 @@ table.show_problems()
 # number of problems 1
 # 
 #### NO problem in fact
+
+#### ========= test BDD
+table.classify(size)
+table.check_simplified(size)
+table.parse_rules()
+table.set_REQ(REQ)
+start = process_time()
+BDD = table.convert()
+print ("time to BDD " + str(floor(process_time()-start)))
+#print(str(BDD.to_dot()))
+

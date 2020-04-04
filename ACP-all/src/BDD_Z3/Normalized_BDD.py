@@ -1,5 +1,5 @@
 # ------------------
-# 1/4/2020
+# 2/4/2020
 # Look for problems (correct requests which are undefined)
 # Check is already a problem and if already seen
 # Finally check if it is a problem add it 
@@ -10,11 +10,12 @@
 # add display for size presentation
 # add sort allred
 # -------------------
-### stop at heuristic
+### without heuristic
 
 ### TODO Try to use BDD 
+### TODO simplify is different and also remove final unsat or defined allowed
 
-from pyeda.inter import bddvars, BinaryDecisionDiagram, bdd2expr
+from pyeda.inter import bddvars, BinaryDecisionDiagram, bdd2expr, Variable, espresso_exprs
 #from functools import reduce 
 #from pyeda.boolalg.bdd import BDDNODEONE, BDDNODEZERO # may be not
 #from pyeda.boolalg.bdd import  * #@UnusedWildImport
@@ -33,36 +34,34 @@ class Normalized_BDD(Normalized_Enumerate):
         self.VARS = [] 
     # --- end init
 
-    # -------------------
-    # To provide some numeric data
-    def get_info(self):
-        res = super().get_info() 
-        res += "number of problems " + str(len(self.normalized_problems)) + "\n"
-        res += "number of unsafe problems " + str(len(self.unsafe_problems)) + "\n"
-        return res 
-    # --- end get_info
-    
     # --------------------
-    # show problems from all_normalized_unsafe
-    # TODO BDD here bdd2expr(bdd, conj=False) neither prime neither minimal ?
+    # show problems with prime implicants 
     # At least using satisfy_all() and minimizing could do that
     def show_problems(self):
-        print (" ----------------- The current problems  ")  
-        print(str(bdd2expr(self.normalized_problems, False))) 
-        print (" ----")
+        print (" ----------------- The current problems [not simplified] ")  
+        #print(str(bdd2expr(self.normalized_problems, False))) 
+        # TODO case 1
+        res = []
+        if (not self.normalized_problems.is_zero()):
+            ### with prime implicants
+            #renameds = bdd2expr(self.normalized_problems, False).complete_sum().xs
+            # espresso produces several simplifications
+            start = process_time()
+            renameds = espresso_exprs(bdd2expr(self.normalized_problems, False))[0].xs
+            print ("espresso time= " + str(floor(process_time()-start)))
+            ## ATTENTION pyeda expr <class 'pyeda.boolalg.expr.OrOp'>
+            #print(str(renameds))
+            for renamed in renameds:
+                tmp = And(*[self.REQ[N.indices[0]] if (isinstance(N, Variable)) 
+                                 else Not(self.REQ[N.__invert__().indices[0]])
+                                 for N in renamed.xs])
+                tmp = self.rewrite(tmp)
+                print(str(tmp))     
+                res.append(tmp)  
+        #print(str(res))     
+        print (" ----" + str(len(res)))
+        return res
     # --- show_problems
-    
-    # --------------------
-    # show problems from all_normalized_unsafe
-    # TODO là aussi peut changer qq chose but How
-    def display_problems(self, level):
-        PBs = [self.reverse_binary_req(pb) for pb in self.normalized_problems if (len(defined(pb)) == self.MIN + level -1)]
-        if (PBs):
-            print ("Found " + str(len(PBs)) + " problems of size " + str(self.MIN + level -1) + " time= " + str(floor(process_time()-self.start)))
-            for pb in PBs:
-                print(str(pb))
-            print (" ----")
-    # --- display_problems
 
     #------------------
     # compute table with frontier enumeration
@@ -87,12 +86,11 @@ class Normalized_BDD(Normalized_Enumerate):
     # and allseen list
     # allowed : List[Binary:REQ] space for REQ variables   
     # TODO review init is it useful to BDD ?
-    # TODO sans heuristic pour voir
     def enumerate(self, allowed):
-        # TODO compute BDD
-        allowedBDD = self.convert_or(allowed) # TODO
+        # compute BDD for allowed
+        allowedBDD = self.convert_or(allowed) 
         #print(str(allowedBDD.to_dot()))
-        self.allowed = allowed ### TODO change later 
+        self.allowed = allowed ### change later 
         NBREQ = len(self.REQ)
         print("definitions " + str(self.definitions))
         # display REQ and its position in Binary:REQ
@@ -106,12 +104,11 @@ class Normalized_BDD(Normalized_Enumerate):
         # --- reductions
         allred = self.sort_reductions(NBREQ)
         print ("MIN= " + str(self.MIN))
-        # set init as problems and display minimal ones
-        # self.normalized_problems = self.init_problems
-        self.normalized_problems = self.convert_or(self.init_problems) # TODO BDD
+        # set init as problems a BDD
+        self.normalized_problems = self.convert_or(self.init_problems) 
         #self.display_problems(1)     ## TODO pb here binary versus BDD ?
         # -------
-        # TODO convert allred into BDD
+        # convert allred into BDD
         allredBDD = [self.convert2BDD(B) for B in allred]
         self.allowed = allowedBDD
         #print(self.pack([B.to_dot() for B in allredBDD]))
@@ -122,13 +119,10 @@ class Normalized_BDD(Normalized_Enumerate):
         combinations = allredBDD # TODO
         # store the sat enumerated requests
         allseen = [] # to avoid side-effect
-        allseen.extend(allredBDD) # TODO
+        allseen.extend(allredBDD) 
         prev = 1 ### speed feeling
         level = 2 # number of conjunctions
         # compute all combinations of reductions
-        heuristic = False
-        # stop at heuristic
-        #while (combinations and not heuristic):
         while (combinations): # total 
             print (">>>>> starting level= " + str(level) + " size= " + str(len(combinations)) + " #allseen= " + str(len(allseen)))
             if (prev > 0):
@@ -138,48 +132,48 @@ class Normalized_BDD(Normalized_Enumerate):
             I = 0
             newcombi = []
             newelts = []
-            #newpbs = []
             while (I < len(combinations)):
                 other = combinations[I]
                 last = elements[I]
                 ### enumerate the combination not already tested
                 for J in range(last+1, size):
-                    binreq = allredBDD[J]  # TODO
+                    binreq = allredBDD[J] 
                     # compute AND return base and if maximal combination
                     commonBDD = other.__and__(binreq)
-                    print(" other= " + str(self.bdd2renamed(other)))
-                    print(" binreq= " + str(self.bdd2renamed(binreq)))
-                    # TODO show both 
+                    #print(" other= " + str(self.bdd2renamed(other)))
+                    #print(" binreq= " + str(self.bdd2renamed(binreq)))
                     maxiBDD = len(commonBDD.inputs)
-                    renamedBDD = self.bdd2renamed(commonBDD) # TODO remove later   
-                    print(" common= " + str(renamedBDD))
-                    # check if already seen   
-                    if ((not commonBDD.is_zero()) and (commonBDD not in allseen)): 
-                        # check if  denied and put in already seen 
-                        print("not seen ! allowed ? " + str(not commonBDD.__and__(self.allowed).is_zero()))                  
-                        if (not commonBDD.__and__(self.allowed).is_zero()): # TODO
-                            # check if common is included in problems 
-                            print("not included ? " + str(not commonBDD.__and__(self.normalized_problems.__invert__()).is_zero()))
-                            if (not commonBDD.__and__(self.normalized_problems.__invert__()).is_zero()):
-                                #renamedBDD = self.bdd2renamed(commonBDD) # TODO 
-                                if (self.check_undefined_request(renamedBDD)): # TODO 
-                                    # TODO will be BDD sans heuristic
-                                    print("found problem: " + str(renamedBDD))
-                                    self.normalized_problems.__or__(commonBDD)
-                                elif (maxiBDD):  # only defined not need to continue 
-                                    allseen.append(commonBDD)   # TODO  
-                                elif (J == size-1):  
-                                    allseen.append(commonBDD)  # TODO                         
-                                else: # store non defined requests to keep for the new level
-                                    newcombi.append(commonBDD)   # TODO
-                                    newelts.append(J)
-                                    allseen.append(commonBDD)  # TODO
-                                # --- checking  undefinedness
-                            # --- already a problem 
-                            else:
-                                allseen.append(commonBDD)   # TODO
-                        # --- allowed
-                    # --- allseen   
+                    #print("is zero? " + str(commonBDD.is_zero()))
+                    if (not commonBDD.is_zero()): 
+                        renamedBDD = self.bdd2renamed(commonBDD) # TODO to move later   
+                        #print(" common= " + str(renamedBDD))
+                        # check if already seen   
+                        if (commonBDD not in allseen): 
+                            # check if  denied and put in already seen 
+                            #print("not seen ! allowed ? " + str(not commonBDD.__and__(self.allowed).is_zero()))                  
+                            if (not commonBDD.__and__(self.allowed).is_zero()): 
+                                # check if common is included in problems 
+                                #print("not included ? " + str(not commonBDD.__and__(self.normalized_problems.__invert__()).is_zero()))
+                                if (not commonBDD.__and__(self.normalized_problems.__invert__()).is_zero()):
+                                    #renamedBDD = self.bdd2renamed(commonBDD) # TODO 
+                                    if (self.check_undefined_request(renamedBDD)): 
+                                        print("found problem: " + str(renamedBDD))
+                                        self.normalized_problems = self.normalized_problems.__or__(commonBDD)
+                                    elif (maxiBDD):  # only defined not need to continue 
+                                        allseen.append(commonBDD)    
+                                    elif (J == size-1):  
+                                        allseen.append(commonBDD)                      
+                                    else: # store non defined requests to keep for the new level
+                                        newcombi.append(commonBDD)  
+                                        newelts.append(J)
+                                        allseen.append(commonBDD)  
+                                    # --- checking  undefinedness
+                                # --- already a problem 
+                                else:
+                                    allseen.append(commonBDD)   
+                            # --- allowed
+                        # --- allseen   
+                    # --- if common not unsat
                 # --- for J in allred  
                 I += 1
             # --- end of one level
@@ -187,75 +181,46 @@ class Normalized_BDD(Normalized_Enumerate):
             prev = len(combinations)
             combinations = newcombi
             elements = newelts
-            #self.final_clean(level, newpbs) # TODO BDD
-            ### heuristic no new problem old test
-            #if (not newpbs) and (not self.Hresult) and self.normalized_problems
-            #print("measures " + str(measure(self.Hresult)) + " =?= " + str(measure(self.normalized_problems)))
-            #print("length " + str(len(self.Hresult)) + " =?= " + str(len(self.normalized_problems)))
-#             if (len(self.Hresult) == len(self.normalized_problems)): # compute heuristic
-#                 heuristic = True
-#                 print ("Heuristic says sufficient level is " + str(level))
-#                 #self.Hresult = self.normalized_problems 
             print("end #level= " + str(level) +  " time = " + str(floor(process_time()-self.start)))
             print()                         
             level += 1
         # --- end while combinations
         print("checking checking= " + str(self.checking) + " allseen " + str(len(allseen)))
-#         # final problems 
-#         finalPB = [PB for PB in self.normalized_problems  if (len(defined(PB)) >= (self.MIN+level-1))]
-#         if (finalPB):
-#             print("---- final problems of size >= " + str((self.MIN+level-1)))
-#             for PB in finalPB:
-#                 print (str(self.reverse_binary_req(PB)))
-#             print("----")
-#        print("#total number of problems " + str(len(self.normalized_problems))) 
     # --- enumerate
 
-
-    # ---------------------
-    # final cleaning: remove unsat and move initial problems
-    def final_clean(self, level, newpbs): # TODO with BDD ?
-        # add as problems and simplify
-        self.Hresult = self.normalized_problems.copy() # To store it and check change
-        self.normalized_problems.extend(newpbs)
-        self.normalized_problems = minimizing(self.normalized_problems)
-        # display the new ones found at this level
-        self.display_problems(level)
-    # --- final_clean
-
-    # ------------------------
-    # Compute initial problems and clean self.binary
-    def initial_problems(self):
-        I = 0
-        while (I < len(self.binary)):
-            binreq = req_reduce(self.binary[I], self.REQB)
-            # eliminate -1*
-            if (sum(binreq) != -len(binreq)):
-                # check if req intersect allowed
-                if (product([binreq], self.allowed)):
-                    renamed = self.reverse_binary_req_renamed(binreq)
-                    if (self.check_undefined_request(renamed)):
-                        if (binreq not in self.init_problems):
-                            #print(" is a problem " + str(binreq))
-                            print("    " + str(self.rewrite(renamed)))
-                            self.init_problems.append(binreq)
-                        del self.binary[I]
-                    else:
-                        I += 1
-                    # --- undefinedness
-                else:
-                    I += 1
-                # --- denied
-            else:
-                I += 1
-            # --- != -1*
-        # simplification initial problems
-        self.init_problems = minimizing(self.init_problems)
-        #self.binary = minimizing(self.binary) #  deactivate it 
-        print (" found initial problems " + str(len(self.init_problems)))
-        print (" and undefined are " + str(len(self.binary)) + " / " + str(self.binary))     
-    # --- initial_problems
-    
+#     # ------------------------
+#     # Compute initial problems and clean self.binary
+#     def initial_problems(self):
+#         I = 0
+#         while (I < len(self.binary)):
+#             binreq = req_reduce(self.binary[I], self.REQB)
+#             # eliminate -1*
+#             if (sum(binreq) != -len(binreq)):
+#                 # check if req intersect allowed
+#                 if (product([binreq], self.allowed)):
+#                     renamed = self.reverse_binary_req_renamed(binreq)
+#                     if (self.check_undefined_request(renamed)):
+#                         if (binreq not in self.init_problems):
+#                             #print(" is a problem " + str(binreq))
+#                             print("    " + str(self.rewrite(renamed)))
+#                             self.init_problems.append(binreq)
+#                         del self.binary[I]
+#                     else:
+#                         I += 1
+#                     # --- undefinedness
+#                 else:
+#                     I += 1
+#                 # --- denied
+#             else:
+#                 I += 1
+#             # --- != -1*
+#         # simplification initial problems
+#         self.init_problems = minimizing(self.init_problems)
+#         #self.binary = minimizing(self.binary) #  deactivate it 
+#         print (" found initial problems " + str(len(self.init_problems)))
+#         print (" and undefined are " + str(len(self.binary)) + " / " + str(self.binary))     
+#     # --- initial_problems
+#     
     ### ============== new for BDD
     
     # ---------------    
@@ -281,11 +246,8 @@ class Normalized_BDD(Normalized_Enumerate):
         if (lbinary):
             tmp = self.convert2BDD(lbinary[0])
             for binary in lbinary[1:]:
-                #tmp = tmp | self.convert2BDD(binary)
-                tmp = self.convert2BDD(binary).__or__(tmp) ### passe ?
-                #tmp = reduce(lambda a,b: a.__or__(b), [tmp, self.convert2BDD(binary)])
+                tmp = self.convert2BDD(binary).__or__(tmp) 
         else:
-            #tmp = BDDNODEZERO
             tmp = BinaryDecisionDiagram.box(0)
         #print(str(tmp.to_dot()))  
         return tmp     
@@ -295,10 +257,9 @@ class Normalized_BDD(Normalized_Enumerate):
     # Convert a bdd into a renamed Z3 expression
     # bdd is a BDD for an AND-term
     # return a Z3 renamed expression
-    # TODO PB indices ?
     def bdd2renamed(self, bdd):
         path = bdd.satisfy_one() # only one in fact
-        print("path= " + str(path))
+        #print("path= " + str(path)) # TODO cas None 
         # we have only one dimension vars
         return And(*[self.REQ[V.indices[0]] if (W == 1) else Not(self.REQ[V.indices[0]])
                      for (V, W) in path.items()])
@@ -317,4 +278,5 @@ class Normalized_BDD(Normalized_Enumerate):
         res += "\n}\n"
         return res
     # --- pack
+    
 # --- end Normalized_BDD

@@ -1,5 +1,5 @@
 # -------------------
-# 23/3/2020
+# 2/4/2020
 # -------------------
 # utile type and predicates 
 ### change Real in IntSort()
@@ -8,7 +8,7 @@
 ### resort it
 
 #from Normalized_BDD import * #@UnusedWildImport
-from BDDFromZ3 import * #@UnusedWildImport
+from Normalized_OK import * #@UnusedWildImport
 from time import * #@UnusedWildImport
 from math import * #@UnusedWildImport
 
@@ -26,8 +26,8 @@ Status = DeclareSort('Status') #p
 Pregnant = DeclareSort('Pregnant') #p
 Cp_duration = DeclareSort('Cp_duration') #p
 
-#table = Normalized_Enumerate()
-table = BDD_Build()
+table = Normalized_Enumerate()
+#table = Normalized_BDD()
 # Variables
 table.add_variable("X", Patient)
 
@@ -67,7 +67,7 @@ diab_no = Const('diab_no', Diabetic)
 diab_unknown = Const('diab_unknwon', Diabetic)
 diabetic  = Function('diabetic', Patient, Diabetic)
 
-# pains not necessarily exclusive
+# pains not necessarily exclusive ?
 swelling_of_feet = Const('swelling_of_feet', Complaint)
 tiredness = Const('tiredness', Complaint)
 syncope = Const('syncope', Complaint)

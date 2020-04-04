@@ -1,5 +1,5 @@
 # -------------------
-# 26/3/2020
+# 2/4/2020
 # CONTINUE A from test.tspass
 # -------------------
 
@@ -14,8 +14,9 @@ Subject = DeclareSort('Subject')
 Resource = DeclareSort('Resource')
 
 #table = Normalized_Enumerate()
+# table = Normalized_BDD()
 table = BDD_Build()
-#table = Enumerate()
+
 # Variables
 table.add_variable("R", Resource)
 table.add_variable("X", Subject)
@@ -275,7 +276,7 @@ size = 47 # without
 
 #table.compare_problems(REQ, size)
 
-#### test BDD
+#### ========= test BDD
 table.classify(size)
 table.check_simplified(size)
 table.parse_rules()
@@ -283,5 +284,5 @@ table.set_REQ(REQ)
 start = process_time()
 BDD = table.convert()
 print ("time to BDD " + str(floor(process_time()-start)))
-print(str(BDD.to_dot()))
+#print(str(BDD.to_dot()))
 

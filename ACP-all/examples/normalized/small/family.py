@@ -1,16 +1,18 @@
 # -------------------
-# 23/3/2020
+# 2/4/2020
 # family from Sasikumar2007 page 38
 # -------------------
 
 # TODO see relations
 
-from Normalized_OK import * #@UnusedWildImport
+#from Normalized_OK import * #@UnusedWildImport
+from Normalized_BDD import * #@UnusedWildImport
 
 # --------------------------
 Person = DeclareSort('Person')
 
-table = Normalized_Enumerate()
+#table = Normalized_Enumerate()
+table = Normalized_BDD()
 #table = Enumerate()
 # Variables
 table.add_variable("X", Person)

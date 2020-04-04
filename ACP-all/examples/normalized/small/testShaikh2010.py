@@ -1,10 +1,11 @@
 # -------------------
-# 26/3/2020
+# 2/4/2020
 # test Table ...pour Shaikh2010
 # -------------------
 
 ### -------------
-from Normalized_OK import * #@UnusedWildImport
+#from Normalized_OK import * #@UnusedWildImport
+from Normalized_BDD import * #@UnusedWildImport
 
 # version sans sous-typage
 Data = DeclareSort('Data')
@@ -14,7 +15,8 @@ root = Const('root', Person)
 tech = Const('tech', Person)
 data = Const('data', Data)
 
-table = Normalized_Enumerate() 
+#table = Normalized_Enumerate() 
+table = Normalized_BDD() 
 #table = Iterative_hashing() 
 # Variables
 table.add_variable("A", Person)
